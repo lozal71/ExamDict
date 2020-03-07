@@ -10,12 +10,12 @@ namespace LingvaDict
     public enum SetMenu 
     { 
         Undefined, ModeOfUsing, SelectLanguage, SelectActWordsList,
-        menuSelectPartOfSpeec, menuSelectGender
+        SelectPartOfSpeech, SelectGender, SelectTransitive, SelectСonjugationType
     };
     public delegate Menu DCreateMenu();
     public class MenuPool
     {
-        IDictionary<SetMenu, DCreateMenu> menuPool;
+        Dictionary<SetMenu, DCreateMenu> menuPool;
 
         public MenuPool()
         {
@@ -23,8 +23,10 @@ namespace LingvaDict
             menuPool.Add(SetMenu.ModeOfUsing, new DCreateMenu(CreateMenuModeOfUsing));
             menuPool.Add(SetMenu.SelectLanguage, new DCreateMenu(CreateMenuSelectLanguage));
             menuPool.Add(SetMenu.SelectActWordsList, new DCreateMenu(CreateMenuWordsList));
-            menuPool.Add(SetMenu.menuSelectPartOfSpeec, new DCreateMenu(CreateMenuPartOfSpeech));
-            menuPool.Add(SetMenu.menuSelectGender, new DCreateMenu(CreateMenuSelectGender));
+            menuPool.Add(SetMenu.SelectPartOfSpeech, new DCreateMenu(CreateMenuPartOfSpeech));
+            menuPool.Add(SetMenu.SelectGender, new DCreateMenu(CreateMenuSelectGender));
+            menuPool.Add(SetMenu.SelectTransitive, new DCreateMenu(CreateMenuSelectTransitive));
+            menuPool.Add(SetMenu.SelectСonjugationType, new DCreateMenu(CreateMenuSelectСonjugationType));
         }
         Menu CreateMenuModeOfUsing()
         {
@@ -35,7 +37,7 @@ namespace LingvaDict
             menu[3] = new MenuOption("\t     Пользователь словаря - цифра 3");
             return menu;
         }
-         Menu CreateMenuSelectLanguage()
+        Menu CreateMenuSelectLanguage()
         {
             Menu menu = new Menu(5);
             menu[0] = new MenuOption("\tВозврат в предыдущее меню - цифра 0 -->");
@@ -45,7 +47,7 @@ namespace LingvaDict
             menu[4] = new MenuOption("\t           Китайский язык - цифра 4");
             return menu;
         }
-         Menu CreateMenuWordsList()
+        Menu CreateMenuWordsList()
         {
             Menu menu = new Menu(5);
             menu[0] = new MenuOption("\tВозврат в предыдущее меню - цифра 0 -->");
@@ -55,8 +57,7 @@ namespace LingvaDict
             menu[4] = new MenuOption("\t           Показать слова - цифра 4");
             return menu;
         }
-
-         Menu CreateMenuPartOfSpeech()
+        Menu CreateMenuPartOfSpeech()
         {
             Menu menu = new Menu(3);
             menu[0] = new MenuOption("\tВозврат в предыдущее меню - цифра 0 -->");
@@ -64,13 +65,29 @@ namespace LingvaDict
             menu[2] = new MenuOption("\t                   Глагол - цифра 2");
             return menu;
         }
-         Menu CreateMenuSelectGender()
+        Menu CreateMenuSelectGender()
         {
             Menu menu = new Menu(4);
             menu[0] = new MenuOption("\tВозврат в предыдущее меню - цифра 0 -->");
             menu[1] = new MenuOption("\t                  Мужской - цифра 1");
             menu[2] = new MenuOption("\t                  Женский - цифра 2");
             menu[3] = new MenuOption("\t                  Средний - цифра 3");
+            return menu;
+        }
+        Menu CreateMenuSelectTransitive()
+        {
+            Menu menu = new Menu(3);
+            menu[0] = new MenuOption("\tВозврат в предыдущее меню - цифра 0 -->");
+            menu[1] = new MenuOption("\t               Переходный - цифра 1");
+            menu[2] = new MenuOption("\t             Непереходный - цифра 2");
+            return menu;
+        }
+        Menu CreateMenuSelectСonjugationType()
+        {
+            Menu menu = new Menu(3);
+            menu[0] = new MenuOption("\tВозврат в предыдущее меню - цифра 0 -->");
+            menu[1] = new MenuOption("\t                   Слабое - цифра 1");
+            menu[2] = new MenuOption("\t                  Сильное - цифра 2");
             return menu;
         }
         public DCreateMenu this[SetMenu key] 

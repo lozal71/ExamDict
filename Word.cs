@@ -23,18 +23,25 @@ namespace LingvaDict
         }
         public string PluralForm 
         { get => pluralForm; set => pluralForm = value; }
-        public SetTransitiveForm Transitive 
-        { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public SetConjugationType ConjugationType 
-        { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string AuxiliaryVerb 
-        { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public SetTransitiveForm Transitive  { get ;  set ; }
+        public SetConjugationType ConjugationType { get; set; }
+        public string AuxiliaryVerb { get; set; }
         public string Description { get => description; set => description = value; }
 
         public override string ToString()
         {
-            return $"{this.WriteLetter}, {this.PartOfSpeech}, " +
-                $"{this.gender}, {this.pluralForm}, {this.description}";
+            switch (PartOfSpeech)
+            {
+                case SetPartOfSpeech.Noun:
+                return $"{this.WriteLetter}, {this.PartOfSpeech}, " +
+                    $"{this.gender}, {this.pluralForm}, {this.description}";
+                case SetPartOfSpeech.Verb:
+                    return $"{this.WriteLetter}, {this.PartOfSpeech}, " +
+                        $"{this.Transitive}, {this.ConjugationType}, " +
+                        $"{this.AuxiliaryVerb}, {this.description}";
+                default:
+                    return $"{this.WriteLetter}";
+            }
         }
 
         public override bool Equals(object obj)

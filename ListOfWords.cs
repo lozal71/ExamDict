@@ -7,14 +7,19 @@ using static System.Console;
 
 namespace LingvaDict
 {
+    public enum SetLanguage { Undefined, Russia, English, Deutsch, China };
+    public enum SetActWordsList { Undefined, AddWord, RemoveWord, ChangeWord, ShowWords }
+    public enum SetModeWrite { Undefined, Letters, Hieroglyph }
     public class ListOfWords
     {
+        public delegate void DPartOfSpecch(ref Word word);
         SortedDictionary<Word, int> words;
         SetLanguage wordLanuage;
         SetLanguage userLanguage;
         SetModeWrite modeWrite;
+        Dictionary<SetPartOfSpeech, DPartOfSpecch> dictPartofSpeech;
 
-        public static MenuPool menuPool = new MenuPool();
+        MenuPool menuPool = new MenuPool();
 
         public ListOfWords(SetLanguage wordLanuage, SetLanguage userLanguage)
         {
@@ -29,24 +34,15 @@ namespace LingvaDict
             {
                 modeWrite = SetModeWrite.Letters;
             }
-        }
-
-        public void Add(Word word)
-        {
-            WriteLine("Вы ввели -->");
-            if (!words.ContainsKey(word))
-            {
-                words.Add(word, words.Count + 1);
-            }
-            foreach (Word w in words.Keys)
-            {
-                WriteLine("Запись {0}: {1} ", words[w], w);
-            }
+            dictPartofSpeech = new Dictionary<SetPartOfSpeech, DPartOfSpecch>();
+            dictPartofSpeech[SetPartOfSpeech.Noun] = new DPartOfSpecch(SetNewNoun);
+            dictPartofSpeech[SetPartOfSpeech.Verb] = new DPartOfSpecch(SetNewVerb);
+            dictPartofSpeech[SetPartOfSpeech.Undefined] = new DPartOfSpecch(SetUndefinedWord);
         }
 
         public void DoNothing()
         {
-
+            WriteLine("ничего не делать со списком слов \n");
         }
         public void RemoveWord()
         {
@@ -59,41 +55,65 @@ namespace LingvaDict
         }
         public void ShowWordsList()
         {
-            WriteLine("показать список слов \n");
-        }
-        public void GetNewWord()
-        {
-            Word tempWord = new Word();
-            WriteLine("добавить запись \n");
-            Write("Введите буквенное написание слова -->");
-            tempWord.WriteLetter = ReadLine();
-            tempWord.PartOfSpeech = (SetPartOfSpeech)
-                menuPool[SetMenu.menuSelectPartOfSpeec]().SelectOption("Какая часть речи?");
-            if (tempWord.PartOfSpeech != SetPartOfSpeech.Undefined)
-            {
-                switch (tempWord.PartOfSpeech)
-                {
-                    case SetPartOfSpeech.Noun:
-                        tempWord.GenderNoun = (SetGender)
-                            menuPool[SetMenu.menuSelectGender]().SelectOption("Выберите род существительного");
-                        Write("Введите форму множественного числа -->");
-                        tempWord.PluralForm = ReadLine();
-                        Write("Введите смысловое описание слова -->");
-                        tempWord.Description = ReadLine();
-                        break;
-                    case SetPartOfSpeech.Verb:
-                        WriteLine("глагол\n");
-                        break;
-                }
-            }
             WriteLine("Вы ввели -->");
-            if (!words.ContainsKey(tempWord))
-            {
-                words.Add(tempWord, words.Count + 1);
-            }
             foreach (Word w in words.Keys)
             {
                 WriteLine("Запись {0}: {1} ", words[w], w);
+            }
+        }
+        public void GetNewWord()
+        {
+            Word word = new Word();
+            WriteLine("добавить запись \n");
+            Write("Введите буквенное написание слова -->");
+            word.WriteLetter = ReadLine();
+            word.PartOfSpeech = (SetPartOfSpeech)
+                menuPool[SetMenu.SelectPartOfSpeech]().SelectOption("Какая часть речи?");
+            dictPartofSpeech[word.PartOfSpeech](ref word);
+            Write("Введите смысловое описание слова -->");
+            word.Description = ReadLine();
+            AddNewWord(word);
+            ShowWordsList();
+        }
+        void SetUndefinedWord(ref Word word)
+        {
+            WriteLine("часть речи неопределена\n");
+        }
+        void SetNewNoun(ref Word word)
+        {
+            WriteLine("существительное\n");
+            word.GenderNoun = (SetGender)
+                menuPool[SetMenu.SelectGender]().SelectOption("Выберите род существительного");
+            Write("Введите форму множественного числа -->");
+            word.PluralForm = ReadLine();
+        }
+        void SetNewVerb(ref Word word)
+        {
+            WriteLine("глагол\n");
+            word.Transitive = (SetTransitiveForm)
+                menuPool[SetMenu.SelectTransitive]().SelectOption("Этот глагол переходный/непереходный?");
+            word.ConjugationType = (SetConjugationType)
+                menuPool[SetMenu.SelectСonjugationType]().
+                SelectOption("Выберите спряжение (сильное/слабое):");
+            if (word.ConjugationType == SetConjugationType.Strong)
+            {
+                Write("Введите глагол, с которым спрягается -->");
+                word.AuxiliaryVerb = ReadLine();
+            }
+            else
+            {
+                word.AuxiliaryVerb = "";
+            }
+        }
+        void AddNewWord(Word word)
+        {
+            if (!words.ContainsKey(word))
+            {
+                words.Add(word, words.Count + 1);
+            }
+            else
+            {
+                WriteLine("Слово {} уже есть в списке", word.WriteLetter);
             }
         }
     }
