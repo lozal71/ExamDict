@@ -10,37 +10,29 @@ namespace LingvaDict
     public class ListOfWords
     {
         SortedDictionary<Word, int> words;
-        Menu menuSelectPartOfSpeech;
-        Menu menuSelectGender;
-        public ListOfWords()
+        SetLanguage wordLanuage;
+        SetLanguage userLanguage;
+        SetModeWrite modeWrite;
+
+        public static MenuPool menuPool = new MenuPool();
+
+        public ListOfWords(SetLanguage wordLanuage, SetLanguage userLanguage)
         {
             words = new SortedDictionary<Word, int>();
-            menuSelectPartOfSpeech = CreateMenuPartOfSpeech();
-            menuSelectGender = CreateMenuSelectGender();
+            this.wordLanuage = wordLanuage;
+            this.userLanguage = userLanguage;
+            if (this.wordLanuage == SetLanguage.China)
+            {
+                modeWrite = SetModeWrite.Hieroglyph;
+            }
+            else
+            {
+                modeWrite = SetModeWrite.Letters;
+            }
         }
 
         public void Add(Word word)
         {
-            Write("Введите буквенное написание слова -->");
-            word.WriteLetter = ReadLine();
-            word.PartOfSpeech = (SetPartOfSpeech)menuSelectPartOfSpeech.SelectOption("Какая часть речи?");
-            if (word.PartOfSpeech != SetPartOfSpeech.Undefined)
-            {
-                switch (word.PartOfSpeech)
-                {
-                    case SetPartOfSpeech.Noun:
-                        word.GenderNoun = (SetGender)menuSelectGender.
-                            SelectOption("Выберите род существительного");
-                        Write("Введите форму множественного числа -->");
-                        word.PluralForm = ReadLine();
-                        Write("Введите смысловое описание слова -->");
-                        word.Description = ReadLine();
-                        break;
-                    case SetPartOfSpeech.Verb:
-                        WriteLine("глагол\n");
-                        break;
-                }
-            }
             WriteLine("Вы ввели -->");
             if (!words.ContainsKey(word))
             {
@@ -51,22 +43,58 @@ namespace LingvaDict
                 WriteLine("Запись {0}: {1} ", words[w], w);
             }
         }
-        static Menu CreateMenuPartOfSpeech()
+
+        public void DoNothing()
         {
-            Menu menu = new Menu(3);
-            menu[0] = new MenuOption("\tВозврат в предыдущее меню - цифра 0 -->");
-            menu[1] = new MenuOption("\t          Существительное - цифра 1");
-            menu[2] = new MenuOption("\t                   Глагол - цифра 2");
-            return menu;
+
         }
-        static Menu CreateMenuSelectGender()
+        public void RemoveWord()
         {
-            Menu menu = new Menu(4);
-            menu[0] = new MenuOption("\tВозврат в предыдущее меню - цифра 0 -->");
-            menu[1] = new MenuOption("\t                  Мужской - цифра 1");
-            menu[2] = new MenuOption("\t                  Женский - цифра 2");
-            menu[3] = new MenuOption("\t                  Средний - цифра 3");
-            return menu;
+            WriteLine("удалить запись \n");
+        }
+
+        public void ChangeWord()
+        {
+            WriteLine("редактировать запись \n");
+        }
+        public void ShowWordsList()
+        {
+            WriteLine("показать список слов \n");
+        }
+        public void GetNewWord()
+        {
+            Word tempWord = new Word();
+            WriteLine("добавить запись \n");
+            Write("Введите буквенное написание слова -->");
+            tempWord.WriteLetter = ReadLine();
+            tempWord.PartOfSpeech = (SetPartOfSpeech)
+                menuPool[SetMenu.menuSelectPartOfSpeec]().SelectOption("Какая часть речи?");
+            if (tempWord.PartOfSpeech != SetPartOfSpeech.Undefined)
+            {
+                switch (tempWord.PartOfSpeech)
+                {
+                    case SetPartOfSpeech.Noun:
+                        tempWord.GenderNoun = (SetGender)
+                            menuPool[SetMenu.menuSelectGender]().SelectOption("Выберите род существительного");
+                        Write("Введите форму множественного числа -->");
+                        tempWord.PluralForm = ReadLine();
+                        Write("Введите смысловое описание слова -->");
+                        tempWord.Description = ReadLine();
+                        break;
+                    case SetPartOfSpeech.Verb:
+                        WriteLine("глагол\n");
+                        break;
+                }
+            }
+            WriteLine("Вы ввели -->");
+            if (!words.ContainsKey(tempWord))
+            {
+                words.Add(tempWord, words.Count + 1);
+            }
+            foreach (Word w in words.Keys)
+            {
+                WriteLine("Запись {0}: {1} ", words[w], w);
+            }
         }
     }
 }

@@ -12,7 +12,6 @@ namespace LingvaDict
         {
             this.sOption = sOption;
         }
-
         public string SOption { get => sOption; set => sOption = value; }
         public override string ToString()
         {
@@ -21,19 +20,17 @@ namespace LingvaDict
     }
 
     public class Menu
-    {
+     {
+ 
         MenuOption[] menuArr;
-
         public Menu(int n)
         {
             menuArr = new MenuOption[n];
         }
-
         public int Length
         {
             get { return menuArr.Length; }
         }
-
         public MenuOption this [int index]
         {
             get

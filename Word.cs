@@ -11,8 +11,7 @@ namespace LingvaDict
         SetGender gender;
         string pluralForm;
         string description;
-        public Word(SetLanguage wordLanuage, SetLanguage userLanguge, SetModeWrite modeWrite) : 
-            base(wordLanuage, userLanguge, modeWrite)
+        public Word() 
         {
             Pronounce = "";
         }
