@@ -9,12 +9,12 @@ namespace LingvaDict
     public enum SetPartOfSpeech { Undefined, Noun, Verb}
     public class BaseWord
     {
-        string writeLetter;
-        string pronounce;
-        SetPartOfSpeech partOfSpeech;
+        //string writeLetter;
+        //string pronounce;
+        //SetPartOfSpeech partOfSpeech;
 
-        public string WriteLetter { get => writeLetter; set => writeLetter = value; }
-        public string Pronounce { get => pronounce; set => pronounce = value; }
-        public SetPartOfSpeech PartOfSpeech { get => partOfSpeech; set => partOfSpeech = value; }
+        public string WriteLetter { get; set; }
+        public string Pronounce { get; set; }
+        public SetPartOfSpeech PartOfSpeech { get; set; }
     }
 }

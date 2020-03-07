@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Console;
+using System.Xml;
 
 namespace LingvaDict
 {
@@ -39,8 +40,6 @@ namespace LingvaDict
          void JobWordList()
         {
             WriteLine("работа со списком слов\n");
-            SetLanguage wordLingva = SetLanguage.Undefined;
-            SetLanguage userLingva = SetLanguage.Undefined;
             SetActWordsList actWordList = SetActWordsList.Undefined;
 
             Dictionary<SetLanguage, string> dictLingva = new Dictionary<SetLanguage, string>();
@@ -49,15 +48,15 @@ namespace LingvaDict
             dictLingva[SetLanguage.English] = "английский";
             dictLingva[SetLanguage.Russia] = "русский";
             dictLingva[SetLanguage.Undefined] = "язык не выбран";
+            ListOfWords words = new ListOfWords();
             do
             {
-                wordLingva = (SetLanguage)
+                words.WordLanuage = (SetLanguage)
                     menuPool[SetMenu.SelectLanguage]().SelectOption("Выбор языка:");
-                userLingva = wordLingva;
-                if (wordLingva != SetLanguage.Undefined)
+                words.UserLanguage = words.WordLanuage;
+                if (words.WordLanuage != SetLanguage.Undefined)
                 {
-                    WriteLine("\n\tВыбран язык: {0}", dictLingva[wordLingva]);
-                    ListOfWords words = new ListOfWords(wordLingva, userLingva);
+                    WriteLine("\n\tВыбран язык: {0}", dictLingva[words.WordLanuage]);
                     Dictionary<SetActWordsList, DJob> dictActWordList =
                                                 new Dictionary<SetActWordsList, DJob>();
                     dictActWordList[SetActWordsList.AddWord] =
@@ -78,7 +77,34 @@ namespace LingvaDict
                         dictActWordList[actWordList]();
                     } while (actWordList != SetActWordsList.Undefined);
                 }
-            } while (wordLingva != SetLanguage.Undefined);
+            } while (words.WordLanuage != SetLanguage.Undefined);
+            XmlTextWriter writer = null;
+            try
+            {
+                writer = new XmlTextWriter("words.xml", System.Text.Encoding.Unicode);
+                writer.Formatting = Formatting.Indented;
+                writer.WriteStartDocument();
+                writer.WriteStartElement("Words");
+                foreach (Word w in words)
+                {
+                    writer.WriteStartElement("Word");
+                    writer.WriteElementString("WriteLetter", w.WriteLetter);
+                    writer.WriteElementString("PartOfSpeach", w.PartOfSpeech.ToString());
+                    writer.WriteElementString("Description", w.Description);
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+                WriteLine("The words.xml file is generated!");
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex.Message);
+            }
+            finally
+            {
+                if (writer != null)
+                    writer.Close();
+            }
         }
     }
 }

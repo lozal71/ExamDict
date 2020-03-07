@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,30 +11,38 @@ namespace LingvaDict
     public enum SetLanguage { Undefined, Russia, English, Deutsch, China };
     public enum SetActWordsList { Undefined, AddWord, RemoveWord, ChangeWord, ShowWords }
     public enum SetModeWrite { Undefined, Letters, Hieroglyph }
-    public class ListOfWords
+    public class ListOfWords : IEnumerable<Word>
     {
-        public delegate void DPartOfSpecch(ref Word word);
         SortedDictionary<Word, int> words;
-        SetLanguage wordLanuage;
-        SetLanguage userLanguage;
-        SetModeWrite modeWrite;
+        public delegate void DPartOfSpecch(ref Word word);
         Dictionary<SetPartOfSpeech, DPartOfSpecch> dictPartofSpeech;
 
         MenuPool menuPool = new MenuPool();
 
-        public ListOfWords(SetLanguage wordLanuage, SetLanguage userLanguage)
+        public SetLanguage WordLanuage { get; set; }
+        public SetLanguage UserLanguage { get; set; }
+        public SetModeWrite ModeWrite 
+        {
+            get
+            {
+                if (this.WordLanuage == SetLanguage.China)
+                {
+                    return SetModeWrite.Hieroglyph;
+                }
+                else
+                {
+                    return SetModeWrite.Letters;
+                }
+            }
+        }
+
+        //Word IEnumerator<Word>.Current => throw new NotImplementedException();
+
+        //object IEnumerator.Current => throw new NotImplementedException();
+
+        public ListOfWords()
         {
             words = new SortedDictionary<Word, int>();
-            this.wordLanuage = wordLanuage;
-            this.userLanguage = userLanguage;
-            if (this.wordLanuage == SetLanguage.China)
-            {
-                modeWrite = SetModeWrite.Hieroglyph;
-            }
-            else
-            {
-                modeWrite = SetModeWrite.Letters;
-            }
             dictPartofSpeech = new Dictionary<SetPartOfSpeech, DPartOfSpecch>();
             dictPartofSpeech[SetPartOfSpeech.Noun] = new DPartOfSpecch(SetNewNoun);
             dictPartofSpeech[SetPartOfSpeech.Verb] = new DPartOfSpecch(SetNewVerb);
@@ -113,8 +122,30 @@ namespace LingvaDict
             }
             else
             {
-                WriteLine("Слово {} уже есть в списке", word.WriteLetter);
+                WriteLine("Слово уже есть в списке");
             }
         }
+
+        IEnumerator<Word> IEnumerable<Word>.GetEnumerator()
+        {
+            //throw new NotImplementedException();
+            foreach (Word w in words.Keys)
+            {
+                yield return w;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            //throw new NotImplementedException();
+            foreach(Word w in words.Keys)
+            {
+                yield return w;
+            }
+        }
+        //public void Add(object w)
+        //{
+        //    this.words.Add(w as Word, words.Count + 1); 
+        //}
     }
 }

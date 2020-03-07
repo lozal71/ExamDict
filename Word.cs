@@ -6,27 +6,23 @@ using System.Threading.Tasks;
 
 namespace LingvaDict
 {
+    [Serializable]
     public class Word : BaseWord, INoun, IVerb, IComparable<Word>
     {
-        SetGender gender;
-        string pluralForm;
-        string description;
+        //SetGender gender;
+        //string pluralForm;
+        //string description;
         public Word() 
         {
             Pronounce = "";
         }
 
-        public SetGender GenderNoun 
-        {
-            get => gender;
-            set => gender = value;
-        }
-        public string PluralForm 
-        { get => pluralForm; set => pluralForm = value; }
+        public SetGender GenderNoun { get; set; }
+        public string PluralForm { get; set; }
         public SetTransitiveForm Transitive  { get ;  set ; }
         public SetConjugationType ConjugationType { get; set; }
         public string AuxiliaryVerb { get; set; }
-        public string Description { get => description; set => description = value; }
+        public string Description { get; set; }
 
         public override string ToString()
         {
@@ -34,11 +30,11 @@ namespace LingvaDict
             {
                 case SetPartOfSpeech.Noun:
                 return $"{this.WriteLetter}, {this.PartOfSpeech}, " +
-                    $"{this.gender}, {this.pluralForm}, {this.description}";
+                    $"{this.GenderNoun}, {this.PluralForm}, {this.Description}";
                 case SetPartOfSpeech.Verb:
                     return $"{this.WriteLetter}, {this.PartOfSpeech}, " +
                         $"{this.Transitive}, {this.ConjugationType}, " +
-                        $"{this.AuxiliaryVerb}, {this.description}";
+                        $"{this.AuxiliaryVerb}, {this.Description}";
                 default:
                     return $"{this.WriteLetter}";
             }
@@ -47,7 +43,7 @@ namespace LingvaDict
         public override bool Equals(object obj)
         {
             if (this.WriteLetter.Equals((obj as Word).WriteLetter) &&
-                this.description.Equals((obj as Word).description))
+                this.Description.Equals((obj as Word).Description))
             {
                 return true;
             }
@@ -61,16 +57,18 @@ namespace LingvaDict
         int IComparable<Word>.CompareTo(Word other)
         {
             return (this.WriteLetter.CompareTo(other.WriteLetter) +
-                this.description.CompareTo(other.description));
+                this.Description.CompareTo(other.Description));
         }
 
         public override int GetHashCode()
         {
-            var hashCode = 318132550;
-            hashCode = hashCode * -1521134295 + gender.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(pluralForm);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(description);
+            var hashCode = 1881619974;
             hashCode = hashCode * -1521134295 + GenderNoun.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PluralForm);
+            hashCode = hashCode * -1521134295 + Transitive.GetHashCode();
+            hashCode = hashCode * -1521134295 + ConjugationType.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(AuxiliaryVerb);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
             return hashCode;
         }
     }
