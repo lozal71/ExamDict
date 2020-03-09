@@ -9,12 +9,14 @@ namespace LingvaDict
     [Serializable]
     public class Word : BaseWord, INoun, IVerb, IComparable<Word>
     {
-        //SetGender gender;
-        //string pluralForm;
-        //string description;
         public Word() 
         {
-            Pronounce = "";
+            GenderNoun = SetGender.Undefined;
+            PluralForm = "Undefined";
+            Transitive = SetTransitiveForm.Undefined;
+            ConjugationType = SetConjugationType.Undefined;
+            AuxiliaryVerb = "Undefined";
+            Description = "Undefined";
         }
 
         public SetGender GenderNoun { get; set; }
@@ -56,8 +58,15 @@ namespace LingvaDict
 
         int IComparable<Word>.CompareTo(Word other)
         {
-            return (this.WriteLetter.CompareTo(other.WriteLetter) +
-                this.Description.CompareTo(other.Description));
+            if (this.WriteLetter.CompareTo(other.WriteLetter) == 0 &&
+                this.Description.CompareTo(other.Description) == 0)
+            {
+                return 0;
+            }
+            else 
+            {
+                return this.WriteLetter.CompareTo(other.WriteLetter);
+            }
         }
 
         public override int GetHashCode()

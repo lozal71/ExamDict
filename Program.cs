@@ -11,6 +11,7 @@ namespace LingvaDict
     {
         static void Main(string[] args)
         {
+            
             ModeOfJob modeOfJob = new ModeOfJob();
             MenuPool menuPool = new MenuPool();
             SetModeJob selectedModeOfJob = 0;

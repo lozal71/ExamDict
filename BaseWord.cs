@@ -9,6 +9,13 @@ namespace LingvaDict
     public enum SetPartOfSpeech { Undefined, Noun, Verb}
     public class BaseWord
     {
+        public BaseWord()
+        {
+            WriteLetter = "Undefined";
+            Pronounce = "Undefined";
+            PartOfSpeech = SetPartOfSpeech.Undefined;
+        }
+
         //string writeLetter;
         //string pronounce;
         //SetPartOfSpeech partOfSpeech;

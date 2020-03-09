@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Console;
-using System.Xml;
 
 namespace LingvaDict
 {
@@ -37,9 +36,13 @@ namespace LingvaDict
         {
             WriteLine("пользователь словаря\n");
         }
-         void JobWordList()
+        void JobWordList()
         {
             WriteLine("работа со списком слов\n");
+            ListOfWords words = new ListOfWords();
+     
+            words.ReadFromXML();
+
             SetActWordsList actWordList = SetActWordsList.Undefined;
 
             Dictionary<SetLanguage, string> dictLingva = new Dictionary<SetLanguage, string>();
@@ -48,7 +51,6 @@ namespace LingvaDict
             dictLingva[SetLanguage.English] = "английский";
             dictLingva[SetLanguage.Russia] = "русский";
             dictLingva[SetLanguage.Undefined] = "язык не выбран";
-            ListOfWords words = new ListOfWords();
             do
             {
                 words.WordLanuage = (SetLanguage)
@@ -78,33 +80,8 @@ namespace LingvaDict
                     } while (actWordList != SetActWordsList.Undefined);
                 }
             } while (words.WordLanuage != SetLanguage.Undefined);
-            XmlTextWriter writer = null;
-            try
-            {
-                writer = new XmlTextWriter("words.xml", System.Text.Encoding.Unicode);
-                writer.Formatting = Formatting.Indented;
-                writer.WriteStartDocument();
-                writer.WriteStartElement("Words");
-                foreach (Word w in words)
-                {
-                    writer.WriteStartElement("Word");
-                    writer.WriteElementString("WriteLetter", w.WriteLetter);
-                    writer.WriteElementString("PartOfSpeach", w.PartOfSpeech.ToString());
-                    writer.WriteElementString("Description", w.Description);
-                    writer.WriteEndElement();
-                }
-                writer.WriteEndElement();
-                WriteLine("The words.xml file is generated!");
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex.Message);
-            }
-            finally
-            {
-                if (writer != null)
-                    writer.Close();
-            }
+            words.WriteToXML();
+            //words.ReadFromXML();
         }
     }
 }

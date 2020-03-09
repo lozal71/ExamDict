@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Console;
+using System.Xml;
+using static System.Convert;
 
 namespace LingvaDict
 {
@@ -21,7 +23,7 @@ namespace LingvaDict
 
         public SetLanguage WordLanuage { get; set; }
         public SetLanguage UserLanguage { get; set; }
-        public SetModeWrite ModeWrite 
+        public SetModeWrite ModeWrite
         {
             get
             {
@@ -65,9 +67,18 @@ namespace LingvaDict
         public void ShowWordsList()
         {
             WriteLine("Вы ввели -->");
-            foreach (Word w in words.Keys)
+            int k = 0;
+            try
             {
-                WriteLine("Запись {0}: {1} ", words[w], w);
+                foreach (Word w in words.Keys)
+                {
+                    words.TryGetValue(w, out k);
+                    WriteLine("Запись {0}: {1} ", k, w);
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex.Message);
             }
         }
         public void GetNewWord()
@@ -109,10 +120,6 @@ namespace LingvaDict
                 Write("Введите глагол, с которым спрягается -->");
                 word.AuxiliaryVerb = ReadLine();
             }
-            else
-            {
-                word.AuxiliaryVerb = "";
-            }
         }
         void AddNewWord(Word word)
         {
@@ -122,7 +129,7 @@ namespace LingvaDict
             }
             else
             {
-                WriteLine("Слово уже есть в списке");
+                WriteLine("Слово {0} уже есть в списке", word.WriteLetter.ToString());
             }
         }
 
@@ -138,7 +145,7 @@ namespace LingvaDict
         IEnumerator IEnumerable.GetEnumerator()
         {
             //throw new NotImplementedException();
-            foreach(Word w in words.Keys)
+            foreach (Word w in words.Keys)
             {
                 yield return w;
             }
@@ -147,5 +154,109 @@ namespace LingvaDict
         //{
         //    this.words.Add(w as Word, words.Count + 1); 
         //}
+        public void WriteToXML()
+        {
+            XmlTextWriter writer = null;
+            try
+            {
+                writer = new XmlTextWriter("words.xml", System.Text.Encoding.Unicode);
+                writer.Formatting = Formatting.Indented;
+                writer.WriteStartDocument();
+                writer.WriteStartElement("Words");
+                foreach (Word w in words.Keys)
+                {
+                    writer.WriteStartElement("Word_" + words[w].ToString());
+                    writer.WriteElementString("WriteLetter", w.WriteLetter);
+                    writer.WriteElementString("Pronounce", w.Pronounce);
+                    writer.WriteElementString("PartOfSpeach", ToInt32(w.PartOfSpeech).ToString());
+                    writer.WriteElementString("AuxiliaryVerb", w.AuxiliaryVerb);
+                    writer.WriteElementString("ConjugationType", ToInt32(w.ConjugationType).ToString());
+                    writer.WriteElementString("GenderNoun", ToInt32(w.GenderNoun).ToString());
+                    writer.WriteElementString("PluralForm", w.PluralForm);
+                    writer.WriteElementString("Transitive", ToInt32(w.Transitive).ToString());
+                    writer.WriteElementString("Description", w.Description);
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+                WriteLine("The words.xml file is generated!");
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex.Message);
+            }
+            finally
+            {
+                if (writer != null)
+                    writer.Close();
+            }
+        }
+        public void ReadFromXML()
+        {
+            //ListOfWords list = new ListOfWords();
+            XmlTextReader reader = null;
+            int wordID;
+            try
+            {
+                reader = new XmlTextReader("words.xml");
+                reader.WhitespaceHandling = WhitespaceHandling.None;
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element && reader.Name.Contains("Word_")) 
+                    {
+                        Word word = new Word();
+                        wordID = ToInt32(reader.Name.Split('_')[1]);
+                        reader.Read();
+                        reader.Read();
+                        word.WriteLetter = reader.Value;
+                        reader.Read();
+                        reader.Read();
+                        reader.Read();
+                        word.Pronounce = reader.Value;
+                        reader.Read();
+                        reader.Read();
+                        reader.Read();
+                        word.PartOfSpeech = (SetPartOfSpeech)ToInt32(reader.Value);
+                        reader.Read();
+                        reader.Read();
+                        reader.Read();
+                        word.AuxiliaryVerb = reader.Value;
+                        reader.Read();
+                        reader.Read();
+                        reader.Read();
+                        word.ConjugationType = (SetConjugationType)ToInt32(reader.Value);
+                        reader.Read();
+                        reader.Read();
+                        reader.Read();
+                        word.GenderNoun =(SetGender)ToInt32(reader.Value);
+                        reader.Read();
+                        reader.Read();
+                        reader.Read();
+                        word.PluralForm = reader.Value;
+                        reader.Read();
+                        reader.Read();
+                        reader.Read();
+                        word.Transitive =(SetTransitiveForm)ToInt32(reader.Value);
+                        reader.Read();
+                        reader.Read();
+                        reader.Read();
+                        word.Description = reader.Value;
+                        reader.Read();
+                        if (!words.ContainsKey(word))
+                        {
+                            words.Add(word, words.Count + 1);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex.Message);
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Close();
+            }
+        }
     }
 }
