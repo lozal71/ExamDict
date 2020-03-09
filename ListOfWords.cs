@@ -58,11 +58,44 @@ namespace LingvaDict
         public void RemoveWord()
         {
             WriteLine("удалить запись \n");
+            Word deleteWord = new Word();
+            Write("Введите слово, которое нужно удалить -->");
+            deleteWord.WriteLetter = ReadLine();
+            foreach (Word w in words.Keys)
+            {
+                if (w.WriteLetter.Equals(deleteWord.WriteLetter))
+                {
+                    WriteLine("Найдено слово:");
+                    WriteLine(w);
+                    w.DeleteMarker = true;
+                    break;
+                }
+            }
         }
 
         public void ChangeWord()
         {
-            WriteLine("редактировать запись \n");
+            //WriteLine("редактировать запись \n");
+            Word changeWord = new Word();
+            Write("Введите слово, которое нужно изменить -->");
+            changeWord.WriteLetter = ReadLine();
+            foreach (Word w in words.Keys)
+            {
+                if (w.WriteLetter.Equals(changeWord.WriteLetter))
+                {
+                    WriteLine("Найдено слово:");
+                    WriteLine(w);
+                    changeWord = w;
+                    break;
+                }
+            }
+            Write("Введите буквенное написание слова -->");
+            changeWord.WriteLetter = ReadLine();
+            changeWord.PartOfSpeech = (SetPartOfSpeech)
+                menuPool[SetMenu.SelectPartOfSpeech]().SelectOption("Какая часть речи?");
+            dictPartofSpeech[changeWord.PartOfSpeech](ref changeWord);
+            Write("Введите смысловое описание слова -->");
+            changeWord.Description = ReadLine();
         }
         public void ShowWordsList()
         {
@@ -72,8 +105,11 @@ namespace LingvaDict
             {
                 foreach (Word w in words.Keys)
                 {
-                    words.TryGetValue(w, out k);
-                    WriteLine("Запись {0}: {1} ", k, w);
+                    if (!w.DeleteMarker)
+                    {
+                        words.TryGetValue(w, out k);
+                        WriteLine("Запись {0}: {1} ", k, w);
+                    }
                 }
             }
             catch (Exception ex)
@@ -93,7 +129,6 @@ namespace LingvaDict
             Write("Введите смысловое описание слова -->");
             word.Description = ReadLine();
             AddNewWord(word);
-            ShowWordsList();
         }
         void SetUndefinedWord(ref Word word)
         {
@@ -150,16 +185,14 @@ namespace LingvaDict
                 yield return w;
             }
         }
-        //public void Add(object w)
-        //{
-        //    this.words.Add(w as Word, words.Count + 1); 
-        //}
         public void WriteToXML()
         {
+            string wordsFileName;
             XmlTextWriter writer = null;
             try
             {
-                writer = new XmlTextWriter("words.xml", System.Text.Encoding.Unicode);
+                wordsFileName = WordLanuage.ToString() + ".xml";
+                writer = new XmlTextWriter(wordsFileName, System.Text.Encoding.Unicode);
                 writer.Formatting = Formatting.Indented;
                 writer.WriteStartDocument();
                 writer.WriteStartElement("Words");
@@ -175,10 +208,11 @@ namespace LingvaDict
                     writer.WriteElementString("PluralForm", w.PluralForm);
                     writer.WriteElementString("Transitive", ToInt32(w.Transitive).ToString());
                     writer.WriteElementString("Description", w.Description);
+                    writer.WriteElementString("DeleteMarker", w.DeleteMarker.ToString());
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
-                WriteLine("The words.xml file is generated!");
+                WriteLine("The {0} file is generated!", wordsFileName);
             }
             catch (Exception ex)
             {
@@ -192,12 +226,13 @@ namespace LingvaDict
         }
         public void ReadFromXML()
         {
-            //ListOfWords list = new ListOfWords();
             XmlTextReader reader = null;
             int wordID;
+            string wordsFileName;
+            wordsFileName = WordLanuage.ToString() +".xml";
             try
             {
-                reader = new XmlTextReader("words.xml");
+                reader = new XmlTextReader(wordsFileName);
                 reader.WhitespaceHandling = WhitespaceHandling.None;
                 while (reader.Read())
                 {
@@ -241,6 +276,9 @@ namespace LingvaDict
                         reader.Read();
                         word.Description = reader.Value;
                         reader.Read();
+                        reader.Read();
+                        reader.Read();
+                        word.DeleteMarker = ToBoolean(reader.Value);
                         if (!words.ContainsKey(word))
                         {
                             words.Add(word, words.Count + 1);

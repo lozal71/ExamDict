@@ -32,11 +32,13 @@ namespace LingvaDict
             {
                 case SetPartOfSpeech.Noun:
                 return $"{this.WriteLetter}, {this.PartOfSpeech}, " +
-                    $"{this.GenderNoun}, {this.PluralForm}, {this.Description}";
+                    $"{this.GenderNoun}, {this.PluralForm}, {this.Description}," +
+                    $"{this.DeleteMarker}";
                 case SetPartOfSpeech.Verb:
                     return $"{this.WriteLetter}, {this.PartOfSpeech}, " +
                         $"{this.Transitive}, {this.ConjugationType}, " +
-                        $"{this.AuxiliaryVerb}, {this.Description}";
+                        $"{this.AuxiliaryVerb}, {this.Description}," +
+                        $"{this.DeleteMarker}";
                 default:
                     return $"{this.WriteLetter}";
             }

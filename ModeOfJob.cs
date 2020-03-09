@@ -40,9 +40,8 @@ namespace LingvaDict
         {
             WriteLine("работа со списком слов\n");
             ListOfWords words = new ListOfWords();
-     
-            words.ReadFromXML();
 
+            SetLanguage wordsLingva;
             SetActWordsList actWordList = SetActWordsList.Undefined;
 
             Dictionary<SetLanguage, string> dictLingva = new Dictionary<SetLanguage, string>();
@@ -53,11 +52,13 @@ namespace LingvaDict
             dictLingva[SetLanguage.Undefined] = "язык не выбран";
             do
             {
-                words.WordLanuage = (SetLanguage)
+                wordsLingva = (SetLanguage)
                     menuPool[SetMenu.SelectLanguage]().SelectOption("Выбор языка:");
-                words.UserLanguage = words.WordLanuage;
-                if (words.WordLanuage != SetLanguage.Undefined)
+                if (wordsLingva != SetLanguage.Undefined)
                 {
+                    words.WordLanuage = wordsLingva;
+                    words.UserLanguage = wordsLingva;
+                    words.ReadFromXML();
                     WriteLine("\n\tВыбран язык: {0}", dictLingva[words.WordLanuage]);
                     Dictionary<SetActWordsList, DJob> dictActWordList =
                                                 new Dictionary<SetActWordsList, DJob>();
@@ -79,9 +80,8 @@ namespace LingvaDict
                         dictActWordList[actWordList]();
                     } while (actWordList != SetActWordsList.Undefined);
                 }
-            } while (words.WordLanuage != SetLanguage.Undefined);
+            } while (wordsLingva != SetLanguage.Undefined);
             words.WriteToXML();
-            //words.ReadFromXML();
         }
     }
 }

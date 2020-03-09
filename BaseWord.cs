@@ -14,14 +14,12 @@ namespace LingvaDict
             WriteLetter = "Undefined";
             Pronounce = "Undefined";
             PartOfSpeech = SetPartOfSpeech.Undefined;
+            DeleteMarker = false;
         }
-
-        //string writeLetter;
-        //string pronounce;
-        //SetPartOfSpeech partOfSpeech;
-
         public string WriteLetter { get; set; }
         public string Pronounce { get; set; }
         public SetPartOfSpeech PartOfSpeech { get; set; }
+
+        public bool DeleteMarker {get;set;}
     }
 }
