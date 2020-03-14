@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
+using System.Xml.Schema;
+using System.Xml;
 
 namespace LingvaDict
 {
@@ -82,5 +85,6 @@ namespace LingvaDict
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Description);
             return hashCode;
         }
+
     }
 }

@@ -7,13 +7,18 @@ using System.Threading.Tasks;
 using static System.Console;
 using System.Xml;
 using static System.Convert;
+using System.IO;
+using System.Xml.Serialization;
+using System.Xml.Schema;
 
 namespace LingvaDict
 {
     public enum SetLanguage { Undefined, Russia, English, Deutsch, China };
     public enum SetActWordsList { Undefined, AddWord, RemoveWord, ChangeWord, ShowWords }
     public enum SetModeWrite { Undefined, Letters, Hieroglyph }
-    public class ListOfWords : IEnumerable<Word>
+
+    [XmlRoot("Dictionary")]
+    public class ListOfWords : IEnumerable<Word> , IXmlSerializable
     {
         SortedDictionary<Word, int> words;
         public delegate void DPartOfSpecch(ref Word word);
@@ -55,21 +60,28 @@ namespace LingvaDict
         {
             WriteLine("ничего не делать со списком слов \n");
         }
-        public void RemoveWord()
+        public bool IsInList(string wordLetter, ref Word word)
         {
-            WriteLine("удалить запись \n");
-            Word deleteWord = new Word();
-            Write("Введите слово, которое нужно удалить -->");
-            deleteWord.WriteLetter = ReadLine();
             foreach (Word w in words.Keys)
             {
-                if (w.WriteLetter.Equals(deleteWord.WriteLetter))
+                if (w.WriteLetter.Equals(wordLetter))
                 {
-                    WriteLine("Найдено слово:");
-                    WriteLine(w);
-                    w.DeleteMarker = true;
-                    break;
+                    word = w;
+                    return true;
                 }
+            }
+            return false;
+        }
+        public void RemoveWord()
+        {
+            //WriteLine("удалить запись \n");
+            Word deleteWord = new Word();
+            Word word = null;
+            Write("Введите слово, которое нужно удалить -->");
+            deleteWord.WriteLetter = ReadLine();
+            if (IsInList(deleteWord.WriteLetter,ref word))
+            {
+                word.DeleteMarker = true;
             }
         }
 
@@ -77,25 +89,33 @@ namespace LingvaDict
         {
             //WriteLine("редактировать запись \n");
             Word changeWord = new Word();
+            Word word = null;
             Write("Введите слово, которое нужно изменить -->");
             changeWord.WriteLetter = ReadLine();
-            foreach (Word w in words.Keys)
+            if (IsInList(changeWord.WriteLetter, ref word))
             {
-                if (w.WriteLetter.Equals(changeWord.WriteLetter))
-                {
-                    WriteLine("Найдено слово:");
-                    WriteLine(w);
-                    changeWord = w;
-                    break;
-                }
+                Write("Введите буквенное написание слова -->");
+                word.WriteLetter = ReadLine();
+                word.PartOfSpeech = (SetPartOfSpeech)
+                    menuPool[SetMenu.SelectPartOfSpeech]().SelectOption("Какая часть речи?");
+                dictPartofSpeech[word.PartOfSpeech](ref word);
+                Write("Введите смысловое описание слова -->");
+                word.Description = ReadLine();
             }
-            Write("Введите буквенное написание слова -->");
-            changeWord.WriteLetter = ReadLine();
-            changeWord.PartOfSpeech = (SetPartOfSpeech)
-                menuPool[SetMenu.SelectPartOfSpeech]().SelectOption("Какая часть речи?");
-            dictPartofSpeech[changeWord.PartOfSpeech](ref changeWord);
-            Write("Введите смысловое описание слова -->");
-            changeWord.Description = ReadLine();
+        }
+        public int GetID(Word w)
+        {
+            int id;
+            if (!w.DeleteMarker)
+            {
+                words.TryGetValue(w, out id);
+                return id;
+            }
+            else
+            {
+                return 0;
+            }
+
         }
         public void ShowWordsList()
         {
@@ -185,6 +205,22 @@ namespace LingvaDict
                 yield return w;
             }
         }
+        public void WrileXML()
+        {
+            try
+            {
+                XmlSerializer xmlFormat = new XmlSerializer(typeof(SortedDictionary<Word, int>));
+                using (Stream fStream = File.Create("test.xml"))
+                {
+                    xmlFormat.Serialize(fStream, words);
+                }
+                WriteLine("XmlSerialize OK!\n");
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex.Message);
+            }
+        }
         public void WriteToXML()
         {
             string wordsFileName;
@@ -196,22 +232,7 @@ namespace LingvaDict
                 writer.Formatting = Formatting.Indented;
                 writer.WriteStartDocument();
                 writer.WriteStartElement("Words");
-                foreach (Word w in words.Keys)
-                {
-                    writer.WriteStartElement("Word_" + words[w].ToString());
-                    writer.WriteElementString("WriteLetter", w.WriteLetter);
-                    writer.WriteElementString("Pronounce", w.Pronounce);
-                    writer.WriteElementString("PartOfSpeach", ToInt32(w.PartOfSpeech).ToString());
-                    writer.WriteElementString("AuxiliaryVerb", w.AuxiliaryVerb);
-                    writer.WriteElementString("ConjugationType", ToInt32(w.ConjugationType).ToString());
-                    writer.WriteElementString("GenderNoun", ToInt32(w.GenderNoun).ToString());
-                    writer.WriteElementString("PluralForm", w.PluralForm);
-                    writer.WriteElementString("Transitive", ToInt32(w.Transitive).ToString());
-                    writer.WriteElementString("Description", w.Description);
-                    writer.WriteElementString("DeleteMarker", w.DeleteMarker.ToString());
-                    writer.WriteEndElement();
-                }
-                writer.WriteEndElement();
+                WriteXml(writer);
                 WriteLine("The {0} file is generated!", wordsFileName);
             }
             catch (Exception ex)
@@ -227,64 +248,13 @@ namespace LingvaDict
         public void ReadFromXML()
         {
             XmlTextReader reader = null;
-            int wordID;
             string wordsFileName;
             wordsFileName = WordLanuage.ToString() +".xml";
             try
             {
                 reader = new XmlTextReader(wordsFileName);
                 reader.WhitespaceHandling = WhitespaceHandling.None;
-                while (reader.Read())
-                {
-                    if (reader.NodeType == XmlNodeType.Element && reader.Name.Contains("Word_")) 
-                    {
-                        Word word = new Word();
-                        wordID = ToInt32(reader.Name.Split('_')[1]);
-                        reader.Read();
-                        reader.Read();
-                        word.WriteLetter = reader.Value;
-                        reader.Read();
-                        reader.Read();
-                        reader.Read();
-                        word.Pronounce = reader.Value;
-                        reader.Read();
-                        reader.Read();
-                        reader.Read();
-                        word.PartOfSpeech = (SetPartOfSpeech)ToInt32(reader.Value);
-                        reader.Read();
-                        reader.Read();
-                        reader.Read();
-                        word.AuxiliaryVerb = reader.Value;
-                        reader.Read();
-                        reader.Read();
-                        reader.Read();
-                        word.ConjugationType = (SetConjugationType)ToInt32(reader.Value);
-                        reader.Read();
-                        reader.Read();
-                        reader.Read();
-                        word.GenderNoun =(SetGender)ToInt32(reader.Value);
-                        reader.Read();
-                        reader.Read();
-                        reader.Read();
-                        word.PluralForm = reader.Value;
-                        reader.Read();
-                        reader.Read();
-                        reader.Read();
-                        word.Transitive =(SetTransitiveForm)ToInt32(reader.Value);
-                        reader.Read();
-                        reader.Read();
-                        reader.Read();
-                        word.Description = reader.Value;
-                        reader.Read();
-                        reader.Read();
-                        reader.Read();
-                        word.DeleteMarker = ToBoolean(reader.Value);
-                        if (!words.ContainsKey(word))
-                        {
-                            words.Add(word, words.Count + 1);
-                        }
-                    }
-                }
+                ReadXml(reader);
             }
             catch (Exception ex)
             {
@@ -294,6 +264,49 @@ namespace LingvaDict
             {
                 if (reader != null)
                     reader.Close();
+            }
+        }
+
+        XmlSchema IXmlSerializable.GetSchema()
+        {
+            //throw new NotImplementedException();
+            return null;
+        }
+
+        public void ReadXml(XmlReader reader)
+        {
+            int wordID;
+            XmlSerializer wordSerializer = new XmlSerializer(typeof(Word));
+            bool wasEmpty = reader.IsEmptyElement;
+            reader.Read();
+            reader.Read();
+            reader.Read();
+            if (wasEmpty)
+                return;
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+                reader.ReadStartElement("item");
+                wordID = ToInt32(reader.Name.Split('_')[1]);
+                reader.Read();
+                Word word = (Word)wordSerializer.Deserialize(reader);
+                words.Add(word, wordID);
+                reader.ReadEndElement();
+                reader.ReadEndElement();
+                reader.MoveToContent();
+            }
+            reader.ReadEndElement();
+        }
+
+        public void WriteXml(XmlWriter writer)
+        {
+            XmlSerializer wordsSerializer = new XmlSerializer(typeof(Word));
+            foreach (Word w in words.Keys)
+            {
+                writer.WriteStartElement("item");
+                writer.WriteStartElement("word_" + words[w].ToString());
+                wordsSerializer.Serialize(writer, w);
+                writer.WriteEndElement();
+                writer.WriteEndElement();
             }
         }
     }

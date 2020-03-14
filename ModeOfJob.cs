@@ -15,6 +15,7 @@ namespace LingvaDict
 
         public delegate void DJob();
         public Dictionary<SetModeJob, DJob> DictJob { get;}
+        Dictionary<SetLanguage, string> dictLingva;
         public ModeOfJob() 
         {
             DictJob = new Dictionary<SetModeJob, DJob>();
@@ -22,6 +23,13 @@ namespace LingvaDict
             DictJob[SetModeJob.User] = new DJob(JobUser);
             DictJob[SetModeJob.WordList] = new DJob(JobWordList);
             DictJob[SetModeJob.Undefined] = new DJob(JobNohting);
+
+            dictLingva = new Dictionary<SetLanguage, string>();
+            dictLingva[SetLanguage.China] = "китайский";
+            dictLingva[SetLanguage.Deutsch] = "немецкий";
+            dictLingva[SetLanguage.English] = "английский";
+            dictLingva[SetLanguage.Russia] = "русский";
+            dictLingva[SetLanguage.Undefined] = "язык не выбран";
 
         }
         void JobNohting()
@@ -31,6 +39,63 @@ namespace LingvaDict
         void JobTransalte()
         {
             WriteLine("работа с переводом\n");
+            ListOfWords wordsOut = new ListOfWords();
+            ListOfWords wordsIn = new ListOfWords();
+            Translate translate = new Translate();
+            //SetLanguage wordsLingvaOut;
+            //SetLanguage wordsLingvaIn;
+            Word wordOut = new Word();
+            Word wordIn = new Word();
+            Word word = null;
+            int idOut = 0;
+            int idIn = 0;
+            string continueJob = "0";
+            translate.LingvaOut = (SetLanguage)
+               menuPool[SetMenu.SelectLanguage]().SelectOption("Выбор языка, с которого переводим:");
+            translate.LingvaIn = (SetLanguage)
+              menuPool[SetMenu.SelectLanguage]().SelectOption("Выбор языка, на который переводим:");
+            if (translate.LingvaOut != SetLanguage.Undefined && translate.LingvaIn != SetLanguage.Undefined)
+            {
+                wordsOut.WordLanuage = translate.LingvaOut;
+                wordsOut.UserLanguage = translate.LingvaOut;
+                wordsIn.WordLanuage = translate.LingvaIn;
+                wordsIn.UserLanguage = translate.LingvaIn;
+                wordsOut.ReadFromXML();
+                wordsIn.ReadFromXML();
+                do
+                {
+                    Write("Введите слово, которое нужно перевести -->");
+                    wordOut.WriteLetter = ReadLine();
+                    if (wordsOut.IsInList(wordOut.WriteLetter, ref word))
+                    {
+                        idOut = wordsOut.GetID(word);
+                        word = null;
+                        Write("Введите слово-перевод -->");
+                        wordIn.WriteLetter = ReadLine();
+                        if (wordsIn.IsInList(wordIn.WriteLetter, ref word))
+                        {
+                            idIn = wordsIn.GetID(word);
+                        }
+                        else
+                        {
+                            WriteLine("Такого слова нет в списке");
+                        }
+                    }
+                    else
+                    {
+                        WriteLine("Такого слова нет в списке");
+                    }
+                    if (idOut != 0 && idIn != 0)
+                    {
+                        translate.AddNewTranslate(idOut, idIn);
+                    }
+                    translate.Show();
+                    Write("Продолжение работы: цифра - 1, выход: цифра 0 -->");
+                    continueJob = ReadLine();
+                } while (continueJob == "1");
+                translate.WriteToXML();
+
+            }
         }
         void JobUser()
         {
@@ -44,12 +109,6 @@ namespace LingvaDict
             SetLanguage wordsLingva;
             SetActWordsList actWordList = SetActWordsList.Undefined;
 
-            Dictionary<SetLanguage, string> dictLingva = new Dictionary<SetLanguage, string>();
-            dictLingva[SetLanguage.China] = "китайский";
-            dictLingva[SetLanguage.Deutsch] = "немецкий";
-            dictLingva[SetLanguage.English] = "английский";
-            dictLingva[SetLanguage.Russia] = "русский";
-            dictLingva[SetLanguage.Undefined] = "язык не выбран";
             do
             {
                 wordsLingva = (SetLanguage)
@@ -82,6 +141,7 @@ namespace LingvaDict
                 }
             } while (wordsLingva != SetLanguage.Undefined);
             words.WriteToXML();
+            //words.WrileXML();
         }
     }
 }
