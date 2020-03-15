@@ -5,10 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Console;
 using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+using static System.Convert;
 
 namespace LingvaDict
 {
-    class Translate
+    class Translate 
     {
         Dictionary<int, List<int>> translate;
         public SetLanguage LingvaOut { get; set; }
@@ -34,6 +37,20 @@ namespace LingvaDict
                 translate.Add(idOut, list);
             }
         }
+
+        public List<int> GetListInID(int outID)
+        {
+            List<int> list = null;
+            foreach (int i in translate.Keys)
+            {
+                if (i == outID)
+                {
+                    list = translate[i];
+                    break;
+                }
+            }
+            return list;
+        }
         public void Show()
         {
             foreach (int i in translate.Keys)
@@ -50,32 +67,18 @@ namespace LingvaDict
         {
             string wordsFileName;
             XmlTextWriter writer = null;
-            int count = 1;
             try
             {
-                //XmlWriterSettings settings = new XmlWriterSettings();
-                //settings.Indent = true;
                 wordsFileName = LingvaOut.ToString() + "-" + LingvaIn.ToString() + ".xml";
-                writer = new XmlTextWriter(wordsFileName, System.Text.Encoding.Unicode);
+                writer = new XmlTextWriter(wordsFileName, Encoding.Unicode);
                 writer.Formatting = Formatting.Indented;
                 writer.WriteStartDocument();
                 writer.WriteStartElement("Translate");
-                //writer.WriteStartElement("book");
-
-                // Write the namespace declaration.
-                //writer.WriteAttributeString("xmlns", "bk", null, "urn:samples");
-
-                // Write the genre attribute.
+                XmlSerializer listSerializer = new XmlSerializer(typeof(List<int>));
                 foreach (int i in translate.Keys)
                 {
-                    writer.WriteStartElement("idOut", i.ToString());
-                //writer.WriteAttributeString("genre", "novel");
-                    //writer.WriteAttributeString("1", "0");
-                    foreach (int k in translate[i])
-                    {
-                        writer.WriteAttributeString(count.ToString(), k.ToString());
-                        count++;
-                    }
+                    writer.WriteStartElement("idOut_"+i.ToString());
+                    listSerializer.Serialize(writer, translate[i]);
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
@@ -89,6 +92,42 @@ namespace LingvaDict
             {
                 if (writer != null)
                     writer.Close();
+            }
+        }
+        public void ReadFromXML()
+        {
+            int wordID;
+            string wordsFileName;
+            wordsFileName = LingvaOut.ToString() + "-" + LingvaIn.ToString() + ".xml";
+            XmlTextReader reader = null;
+            List<int> list = new List<int>();
+            XmlSerializer listSerializer = new XmlSerializer(typeof(List<int>));
+            try
+            {
+                reader = new XmlTextReader(wordsFileName);
+                reader.WhitespaceHandling = WhitespaceHandling.None;
+                reader.ReadStartElement();
+                while (reader.NodeType != XmlNodeType.EndElement)
+                {
+                    wordID = ToInt32(reader.Name.Split('_')[1]);
+                    reader.ReadStartElement();
+                    list = (List<int>)listSerializer.Deserialize(reader);
+                    translate.Add(wordID, list);
+                    list = null;
+                    reader.ReadEndElement();
+                    reader.MoveToContent();
+                }
+                reader.ReadEndElement();
+            }
+            catch (Exception ex)
+            {
+                WriteLine(ex.Message);
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Close();
+
             }
         }
     }

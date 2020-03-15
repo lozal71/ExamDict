@@ -17,8 +17,8 @@ namespace LingvaDict
     public enum SetActWordsList { Undefined, AddWord, RemoveWord, ChangeWord, ShowWords }
     public enum SetModeWrite { Undefined, Letters, Hieroglyph }
 
-    [XmlRoot("Dictionary")]
-    public class ListOfWords : IEnumerable<Word> , IXmlSerializable
+    [XmlRoot("List")]
+    public class ListOfWords : IEnumerable<Word>, IXmlSerializable
     {
         SortedDictionary<Word, int> words;
         public delegate void DPartOfSpecch(ref Word word);
@@ -137,6 +137,19 @@ namespace LingvaDict
                 WriteLine(ex.Message);
             }
         }
+        public Word GetWord(int wordID)
+        {
+            Word word = null;
+            foreach (Word w in words.Keys)
+            {
+                if (words[w] == wordID)
+                {
+                    word = w;
+                    break;
+                }
+            }
+            return word;
+        }
         public void GetNewWord()
         {
             Word word = new Word();
@@ -205,22 +218,6 @@ namespace LingvaDict
                 yield return w;
             }
         }
-        public void WrileXML()
-        {
-            try
-            {
-                XmlSerializer xmlFormat = new XmlSerializer(typeof(SortedDictionary<Word, int>));
-                using (Stream fStream = File.Create("test.xml"))
-                {
-                    xmlFormat.Serialize(fStream, words);
-                }
-                WriteLine("XmlSerialize OK!\n");
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex.Message);
-            }
-        }
         public void WriteToXML()
         {
             string wordsFileName;
@@ -228,7 +225,7 @@ namespace LingvaDict
             try
             {
                 wordsFileName = WordLanuage.ToString() + ".xml";
-                writer = new XmlTextWriter(wordsFileName, System.Text.Encoding.Unicode);
+                writer = new XmlTextWriter(wordsFileName, Encoding.Unicode);
                 writer.Formatting = Formatting.Indented;
                 writer.WriteStartDocument();
                 writer.WriteStartElement("Words");
