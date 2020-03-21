@@ -20,9 +20,13 @@ namespace LingvaDict
     [XmlRoot("List")]
     public class ListOfWords : IEnumerable<Word>, IXmlSerializable
     {
+        public static event dMenuOption SelectMenu; // событие выбора пункта меню
+
         SortedDictionary<Word, int> words;
-        public delegate void DPartOfSpecch(ref Word word);
-        Dictionary<SetPartOfSpeech, DPartOfSpecch> dictPartofSpeech;
+        public delegate void DPartOfSpeech(ref Word word);
+        Dictionary<SetPartOfSpeech, DPartOfSpeech> dictPartofSpeech;
+        public Dictionary<SetActWordsList, DJob> dictActWordList;
+
 
         MenuPool menuPool = new MenuPool();
 
@@ -50,12 +54,19 @@ namespace LingvaDict
         public ListOfWords()
         {
             words = new SortedDictionary<Word, int>();
-            dictPartofSpeech = new Dictionary<SetPartOfSpeech, DPartOfSpecch>();
-            dictPartofSpeech[SetPartOfSpeech.Noun] = new DPartOfSpecch(SetNewNoun);
-            dictPartofSpeech[SetPartOfSpeech.Verb] = new DPartOfSpecch(SetNewVerb);
-            dictPartofSpeech[SetPartOfSpeech.Undefined] = new DPartOfSpecch(SetUndefinedWord);
-        }
+            dictPartofSpeech = new Dictionary<SetPartOfSpeech, DPartOfSpeech>();
+            dictPartofSpeech[SetPartOfSpeech.Noun] = new DPartOfSpeech(SetNewNoun);
+            dictPartofSpeech[SetPartOfSpeech.Verb] = new DPartOfSpeech(SetNewVerb);
+            dictPartofSpeech[SetPartOfSpeech.Undefined] = new DPartOfSpeech(SetUndefinedWord);
 
+            dictActWordList = new Dictionary<SetActWordsList, DJob>();
+            dictActWordList[SetActWordsList.AddWord] = new DJob(GetNewWord);
+            dictActWordList[SetActWordsList.ChangeWord] = new DJob(ChangeWord);
+            dictActWordList[SetActWordsList.RemoveWord] = new DJob(RemoveWord);
+            dictActWordList[SetActWordsList.ShowWords] = new DJob(ShowWordsList);
+            dictActWordList[SetActWordsList.Undefined] = new DJob(DoNothing);
+
+        }
         public void DoNothing()
         {
             WriteLine("ничего не делать со списком слов \n");
@@ -96,8 +107,11 @@ namespace LingvaDict
             {
                 Write("Введите буквенное написание слова -->");
                 word.WriteLetter = ReadLine();
-                word.PartOfSpeech = (SetPartOfSpeech)
-                    menuPool[SetMenu.SelectPartOfSpeech]().SelectOption("Какая часть речи?");
+                SelectMenu += MenuPool.CreateMenuPartOfSpeech().SelectOption;
+                word.PartOfSpeech = (SetPartOfSpeech)SelectMenu?.Invoke("Какая часть речи?");
+                SelectMenu = null;
+                //word.PartOfSpeech = (SetPartOfSpeech)
+                //      menuPool[SetMenu.SelectPartOfSpeech]().SelectOption("Какая часть речи?");
                 dictPartofSpeech[word.PartOfSpeech](ref word);
                 Write("Введите смысловое описание слова -->");
                 word.Description = ReadLine();
@@ -106,7 +120,7 @@ namespace LingvaDict
         public int GetID(Word w)
         {
             int id;
-            if (!w.DeleteMarker)
+           if (!w.DeleteMarker)
             {
                 words.TryGetValue(w, out id);
                 return id;
@@ -156,8 +170,11 @@ namespace LingvaDict
             WriteLine("добавить запись \n");
             Write("Введите буквенное написание слова -->");
             word.WriteLetter = ReadLine();
-            word.PartOfSpeech = (SetPartOfSpeech)
-                menuPool[SetMenu.SelectPartOfSpeech]().SelectOption("Какая часть речи?");
+            SelectMenu += MenuPool.CreateMenuPartOfSpeech().SelectOption;
+            word.PartOfSpeech = (SetPartOfSpeech)SelectMenu?.Invoke("Какая часть речи?");
+            SelectMenu = null;
+            //word.PartOfSpeech = (SetPartOfSpeech)
+            //    menuPool[SetMenu.SelectPartOfSpeech]().SelectOption("Какая часть речи?");
             dictPartofSpeech[word.PartOfSpeech](ref word);
             Write("Введите смысловое описание слова -->");
             word.Description = ReadLine();
@@ -170,19 +187,29 @@ namespace LingvaDict
         void SetNewNoun(ref Word word)
         {
             WriteLine("существительное\n");
-            word.GenderNoun = (SetGender)
-                menuPool[SetMenu.SelectGender]().SelectOption("Выберите род существительного");
+            SelectMenu += MenuPool.CreateMenuSelectGender().SelectOption;
+            word.GenderNoun = (SetGender)SelectMenu?.Invoke("Выберите род существительного");
+            SelectMenu = null;
+            //word.GenderNoun = (SetGender)
+            //      menuPool[SetMenu.SelectGender]().SelectOption("Выберите род существительного");
             Write("Введите форму множественного числа -->");
             word.PluralForm = ReadLine();
         }
         void SetNewVerb(ref Word word)
         {
             WriteLine("глагол\n");
-            word.Transitive = (SetTransitiveForm)
-                menuPool[SetMenu.SelectTransitive]().SelectOption("Этот глагол переходный/непереходный?");
+            SelectMenu += MenuPool.CreateMenuSelectTransitive().SelectOption;
+            word.Transitive = (SetTransitiveForm)SelectMenu?.Invoke("Этот глагол переходный/непереходный?");
+            SelectMenu = null;
+            SelectMenu += MenuPool.CreateMenuSelectСonjugationType().SelectOption;
             word.ConjugationType = (SetConjugationType)
-                menuPool[SetMenu.SelectСonjugationType]().
-                SelectOption("Выберите спряжение (сильное/слабое):");
+                SelectMenu?.Invoke("Выберите спряжение (сильное/слабое):");
+            SelectMenu = null;
+            //word.Transitive = (SetTransitiveForm)
+            //    menuPool[SetMenu.SelectTransitive]().SelectOption("Этот глагол переходный/непереходный?");
+            //word.ConjugationType = (SetConjugationType)
+            //    menuPool[SetMenu.SelectСonjugationType]().
+                //SelectOption("Выберите спряжение (сильное/слабое):");
             if (word.ConjugationType == SetConjugationType.Strong)
             {
                 Write("Введите глагол, с которым спрягается -->");

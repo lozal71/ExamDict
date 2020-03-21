@@ -9,19 +9,26 @@ namespace LingvaDict
 {
     class Program
     {
+        public static event dMenuOption SelectMenu; // событие выбора пункта меню
+        public static event DJob SelectJob; // событие выбора работы
         static void Main(string[] args)
         {
-            
             ModeOfJob modeOfJob = new ModeOfJob();
-            MenuPool menuPool = new MenuPool();
-            SetModeJob selectedModeOfJob = 0;
+            SetModeJob selectedModeOfJob = SetModeJob.Exit;
+            SelectMenu = null;
+            SelectJob = null;
             do
             {
-                selectedModeOfJob = (SetModeJob)menuPool[SetMenu.ModeOfUsing]().
-                                    SelectOption("Выбор режима работы:");
-                Write("\n\tВыбран режим: ");
-                modeOfJob.DictJob[selectedModeOfJob]();
-            } while (selectedModeOfJob != SetModeJob.Undefined);
+                SelectMenu += MenuPool.CreateMenuModeOfUsing().SelectOption;
+                selectedModeOfJob = (SetModeJob)SelectMenu("Выбор режима работы пользователя:");
+                SelectMenu = null;
+                if (selectedModeOfJob != SetModeJob.Exit)
+                {
+                    SelectJob += modeOfJob.DictJob[selectedModeOfJob];
+                    SelectJob();
+                    SelectJob = null;
+                }
+            } while (selectedModeOfJob != SetModeJob.Exit);
 
         }
     }
