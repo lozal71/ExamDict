@@ -41,8 +41,6 @@ namespace LingvaDict
         {
             Write("\n\tВыбран режим: ");
             WriteLine("работа с переводом\n");
-            ListOfWords wordsOut = new ListOfWords();
-            ListOfWords wordsIn = new ListOfWords();
             Translate translate = new Translate();
             Word wordOut = new Word();
             Word wordIn = new Word();
@@ -50,68 +48,45 @@ namespace LingvaDict
             SetMenu continueJob;
             int idOut = 0;
             int idIn = 0;
-            SelectMenu += MenuPool.CreateMenuSelectLanguage().SelectOption;
-            translate.LingvaOut = (SetLanguage)SelectMenu?.Invoke("Выбор языка, с которого переводим: ");
-            translate.LingvaIn = (SetLanguage)SelectMenu?.Invoke("Выбор языка, на который переводим: ");
-            SelectMenu = null;
-            //translate.LingvaOut = (SetLanguage)
-            //   menuPool[SetMenu.SelectLanguage]().SelectOption("Выбор языка, с которого переводим:");
-            //translate.LingvaIn = (SetLanguage)
-            //  menuPool[SetMenu.SelectLanguage]().SelectOption("Выбор языка, на который переводим:");
-            if (translate.LingvaOut != SetLanguage.Undefined && translate.LingvaIn != SetLanguage.Undefined)
+            do
             {
-                wordsOut.WordLanuage = translate.LingvaOut;
-                wordsOut.UserLanguage = translate.LingvaOut;
-                wordsIn.WordLanuage = translate.LingvaIn;
-                wordsIn.UserLanguage = translate.LingvaIn;
-                wordsOut.ReadFromXML();
-                wordsIn.ReadFromXML();
-                translate.ReadFromXML();
-                do
+                Write("Введите слово, которое нужно перевести -->");
+                wordOut.WriteLetter = ReadLine();
+                if (translate.wordsOut.IsInList(wordOut.WriteLetter, ref word))
                 {
-                    Write("Введите слово, которое нужно перевести -->");
-                    wordOut.WriteLetter = ReadLine();
-                    if (wordsOut.IsInList(wordOut.WriteLetter, ref word))
+                    idOut = translate.wordsOut.GetID(word);
+                    word = null;
+                    Write("Введите слово-перевод -->");
+                    wordIn.WriteLetter = ReadLine();
+                    if (translate.wordsIn.IsInList(wordIn.WriteLetter, ref word))
                     {
-                        idOut = wordsOut.GetID(word);
-                        word = null;
-                        Write("Введите слово-перевод -->");
-                        wordIn.WriteLetter = ReadLine();
-                        if (wordsIn.IsInList(wordIn.WriteLetter, ref word))
-                        {
-                            idIn = wordsIn.GetID(word);
-                        }
-                        else
-                        {
-                            WriteLine("Такого слова нет в списке");
-                        }
+                        idIn = translate.wordsIn.GetID(word);
                     }
                     else
                     {
                         WriteLine("Такого слова нет в списке");
                     }
-                    if (idOut != 0 && idIn != 0)
-                    {
-                        translate.AddNewTranslate(idOut, idIn);
-                        WriteLine(wordsOut.GetWord(idOut));
-                        WriteLine(wordsIn.GetWord(idIn));
-                        //translate.Show();
-                    }
-                    SelectMenu += MenuPool.CreateMenuContinueStop().SelectOption;
-                    continueJob = (SetMenu)SelectMenu?.Invoke("Выберите дальнейшее действие:");
-                    SelectMenu = null;
-                    //continueJob = (SetMenu)menuPool[SetMenu.ContinueStop]().
-                    //                            SelectOption("Выберите дальнейшее действие:");
-                } while (continueJob != SetMenu.Undefined);
-                translate.WriteToXML();
-            }
+                }
+                else
+                {
+                    WriteLine("Такого слова нет в списке");
+                }
+                if (idOut != 0 && idIn != 0)
+                {
+                    translate.AddNewTranslate(idOut, idIn);
+                    WriteLine(translate.wordsOut.GetWord(idOut));
+                    WriteLine(translate.wordsIn.GetWord(idIn));
+                }
+                SelectMenu += MenuPool.CreateMenuContinueStop().SelectOption;
+                continueJob = (SetMenu)SelectMenu?.Invoke("Выберите дальнейшее действие:");
+                SelectMenu = null;
+            } while (continueJob != SetMenu.Undefined);
+            translate.WriteToXML();
         }
         void JobUser()
         {
             Write("\n\tВыбран режим: ");
             WriteLine("пользователь словаря\n");
-            ListOfWords wordsOut = new ListOfWords();
-            ListOfWords wordsIn = new ListOfWords();
             Translate translate = new Translate();
             Word wordOut = new Word();
             Word wordIn = new Word();
@@ -119,48 +94,28 @@ namespace LingvaDict
             int idOut = 0;
             List<int> listIdIn = null;
             SetMenu continueJob;
-            SelectMenu += MenuPool.CreateMenuSelectLanguage().SelectOption;
-            translate.LingvaOut = (SetLanguage)SelectMenu?.Invoke("Выбор языка, с которого переводим: ");
-            translate.LingvaIn = (SetLanguage)SelectMenu?.Invoke("Выбор языка, на который переводим: ");
-            SelectMenu = null;
-            //translate.LingvaOut = (SetLanguage)
-            //   menuPool[SetMenu.SelectLanguage]().SelectOption("Выбор языка, с которого переводим:");
-            //translate.LingvaIn = (SetLanguage)
-            //  menuPool[SetMenu.SelectLanguage]().SelectOption("Выбор языка, на который переводим:");
-            if (translate.LingvaOut != SetLanguage.Undefined && translate.LingvaIn != SetLanguage.Undefined)
+            do
             {
-                wordsOut.WordLanuage = translate.LingvaOut;
-                wordsOut.UserLanguage = translate.LingvaOut;
-                wordsIn.WordLanuage = translate.LingvaIn;
-                wordsIn.UserLanguage = translate.LingvaIn;
-                wordsOut.ReadFromXML();
-                wordsIn.ReadFromXML();
-                translate.ReadFromXML();
-                do
+                Write("Введите слово, которое нужно перевести -->");
+                wordOut.WriteLetter = ReadLine();
+                if (translate.wordsOut.IsInList(wordOut.WriteLetter, ref word))
                 {
-                    Write("Введите слово, которое нужно перевести -->");
-                    wordOut.WriteLetter = ReadLine();
-                    if (wordsOut.IsInList(wordOut.WriteLetter, ref word))
+                    idOut = translate.wordsOut.GetID(wordOut);
+                    listIdIn = translate.GetListInID(idOut);
+                    WriteLine(translate.wordsOut.GetWord(idOut));
+                    foreach (int id in listIdIn)
                     {
-                        idOut = wordsOut.GetID(wordOut);
-                        listIdIn = translate.GetListInID(idOut);
-                        WriteLine(wordsOut.GetWord(idOut));
-                        foreach (int id in listIdIn)
-                        {
-                            WriteLine(wordsIn.GetWord(id));
-                        }
+                        WriteLine(translate.wordsIn.GetWord(id));
                     }
-                    else
-                    {
-                        WriteLine("Такого слова нет в списке");
-                    }
-                    SelectMenu += MenuPool.CreateMenuContinueStop().SelectOption;
-                    continueJob = (SetMenu)SelectMenu?.Invoke("Выберите дальнейшее действие:");
-                    SelectMenu = null;
-                    //continueJob = (SetMenu)menuPool[SetMenu.ContinueStop]().
-                    //                            SelectOption("Выберите дальнейшее действие:");
-                } while (continueJob != SetMenu.Undefined);
-            }
+                }
+                else
+                {
+                    WriteLine("Такого слова нет в списке");
+                }
+                SelectMenu += MenuPool.CreateMenuContinueStop().SelectOption;
+                continueJob = (SetMenu)SelectMenu?.Invoke("Выберите дальнейшее действие:");
+                SelectMenu = null;
+            } while (continueJob != SetMenu.Undefined);
         }
         void JobWordList()
         {
@@ -175,8 +130,6 @@ namespace LingvaDict
                 ListOfWords words = new ListOfWords();
                 wordsLingva = (SetLanguage)SelectMenu?.Invoke("Выбор языка:");
                 SelectMenu = null;
-                //wordsLingva = (SetLanguage)
-                //    menuPool[SetMenu.SelectLanguage]().SelectOption("Выбор языка:");
                 if (wordsLingva != SetLanguage.Undefined)
                 {
                     words.WordLanuage = wordsLingva;
@@ -189,9 +142,6 @@ namespace LingvaDict
                         actWordList = (SetActWordsList)
                             SelectMenu?.Invoke("Что вы хотите сделать со списком слов?");
                         SelectMenu = null;
-                        //actWordList = (SetActWordsList)
-                        //    menuPool[SetMenu.SelectActWordsList]().
-                        //    SelectOption("Что вы хотите сделать со списком слов?");
                         words.dictActWordList[actWordList]();
                     } while (actWordList != SetActWordsList.Undefined);
                     words.WriteToXML();

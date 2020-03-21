@@ -7,32 +7,62 @@ using System.Threading.Tasks;
 
 namespace LingvaDict
 {
+    /// <summary>
+    /// Набор меню
+    /// </summary>
     public enum SetMenu 
-    { 
-        Undefined, ModeOfUsing, SelectLanguage, SelectActWordsList,
-        SelectPartOfSpeech, SelectGender, SelectTransitive, SelectСonjugationType,
+    {   /// <summary>
+        ///  Меню не определено
+        /// </summary>
+        Undefined,
+        /// <summary>
+        /// Режим работы пользователя
+        /// </summary>
+        ModeOfUsing, 
+        /// <summary>
+        /// Выбор языка
+        /// </summary>
+        SelectLanguage, 
+        /// <summary>
+        /// Выбор действий для работы со списком слов
+        /// </summary>
+        SelectActWordsList,
+        /// <summary>
+        /// Выбор части речи
+        /// </summary>
+        SelectPartOfSpeech, 
+        /// <summary>
+        /// Выбор рода существительного
+        /// </summary>
+        SelectGender, 
+        /// <summary>
+        /// Выбор переходности глагола
+        /// </summary>
+        SelectTransitive, 
+        /// <summary>
+        /// Выбор вида спряжения глагола
+        /// </summary>
+        SelectСonjugationType,
+        /// <summary>
+        /// Выбор действия - продолжить или остановиться
+        /// </summary>
         ContinueStop
     };
-    //public delegate Menu DCreateMenu();
-
-    public delegate int dMenuOption(string str, int k = 0); // делегат вызова выбора опции меню
-
+    /// <summary>
+    /// делегат вызова выбора опции меню
+    /// </summary>
+    /// <param name="str"> заголовок меню </param>
+    /// <returns> возвращает целое число - выбор пользователя </returns>
+    public delegate int dMenuOption(string str); 
+    /// <summary>
+    /// Класс содержит статические методы формирования различных меню
+    /// </summary>
     public class MenuPool
     {
-        //Dictionary<SetMenu, DCreateMenu> menuPool;
-        //public MenuPool()
-        //{
-        //    menuPool = new Dictionary<SetMenu, DCreateMenu>();
-        //    menuPool.Add(SetMenu.ModeOfUsing, new DCreateMenu(CreateMenuModeOfUsing));
-        //    menuPool.Add(SetMenu.SelectLanguage, new DCreateMenu(CreateMenuSelectLanguage));
-        //    menuPool.Add(SetMenu.SelectActWordsList, new DCreateMenu(CreateMenuWordsList));
-        //    menuPool.Add(SetMenu.SelectPartOfSpeech, new DCreateMenu(CreateMenuPartOfSpeech));
-        //    menuPool.Add(SetMenu.SelectGender, new DCreateMenu(CreateMenuSelectGender));
-        //    menuPool.Add(SetMenu.SelectTransitive, new DCreateMenu(CreateMenuSelectTransitive));
-        //    menuPool.Add(SetMenu.SelectСonjugationType, new DCreateMenu(CreateMenuSelectСonjugationType));
-        //    menuPool.Add(SetMenu.ContinueStop, new DCreateMenu(CreateMenuContinueStop));
-        //}
-
+        /// <summary>
+        /// Создание меню: продолжить-остановиться
+        /// </summary>
+        /// <returns> возвращает объект класса Menu </returns>
         public static Menu CreateMenuContinueStop()
         {
             Menu menu = new Menu(2);
@@ -41,6 +71,10 @@ namespace LingvaDict
             return menu;
 
         }
+        /// <summary>
+        /// Создание меню для выбора режима работы пользователя
+        /// </summary>
+        /// <returns> возвращает объект класса Menu </returns>
         public static Menu CreateMenuModeOfUsing()
         {
             Menu menu = new Menu(4);
@@ -50,6 +84,10 @@ namespace LingvaDict
             menu[3] = new MenuOption("\t     Пользователь словаря - цифра 3");
             return menu;
         }
+        /// <summary>
+        /// Создание меню для выбора языка
+        /// </summary>
+        /// <returns> возвращает объект класса Menu </returns>
         public static Menu CreateMenuSelectLanguage()
         {
             Menu menu = new Menu(5);
@@ -60,6 +98,10 @@ namespace LingvaDict
             menu[4] = new MenuOption("\t           Китайский язык - цифра 4");
             return menu;
         }
+        /// <summary>
+        /// Создание меню для выбора действий работы со списком слов
+        /// </summary>
+        /// <returns> возвращает объект класса Menu </returns>
         public static Menu CreateMenuWordsList()
         {
             Menu menu = new Menu(5);
@@ -70,6 +112,10 @@ namespace LingvaDict
             menu[4] = new MenuOption("\t           Показать слова - цифра 4");
             return menu;
         }
+        /// <summary>
+        /// Создание меню для выбора части речи
+        /// </summary>
+        /// <returns> возвращает объект класса Menu </returns>
         public static Menu CreateMenuPartOfSpeech()
         {
             Menu menu = new Menu(3);
@@ -78,6 +124,10 @@ namespace LingvaDict
             menu[2] = new MenuOption("\t         Глагол - цифра 2");
             return menu;
         }
+        /// <summary>
+        /// Создание меню для выбора рода имени существительного
+        /// </summary>
+        /// <returns> возвращает объект класса Menu </returns>
         public static Menu CreateMenuSelectGender()
         {
             Menu menu = new Menu(4);
@@ -87,6 +137,10 @@ namespace LingvaDict
             menu[3] = new MenuOption("\t     Средний - цифра 3");
             return menu;
         }
+        /// <summary>
+        /// Создание меню для выбора переходности глагола
+        /// </summary>
+        /// <returns> возвращает объект класса Menu </returns>
         public static Menu CreateMenuSelectTransitive()
         {
             Menu menu = new Menu(3);
@@ -95,6 +149,10 @@ namespace LingvaDict
             menu[2] = new MenuOption("\tНепереходный - цифра 2");
             return menu;
         }
+        /// <summary>
+        /// Создание меню для выбора вида спряжения глагола
+        /// </summary>
+        /// <returns> возвращает объект класса Menu </returns>
         public static Menu CreateMenuSelectСonjugationType()
         {
             Menu menu = new Menu(3);
@@ -103,10 +161,5 @@ namespace LingvaDict
             menu[2] = new MenuOption("\t     Сильное - цифра 2");
             return menu;
         }
-        //public DCreateMenu this[SetMenu key] 
-        //{ 
-        //    get { return menuPool[key]; }
-        //    set { menuPool[key] = value; } 
-        //}
     }
 }

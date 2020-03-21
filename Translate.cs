@@ -13,39 +13,70 @@ namespace LingvaDict
 {
     class Translate 
     {
-        Dictionary<int, List<int>> translate;
+        public static event dMenuOption SelectMenu; // событие выбора пункта меню
+
+        Dictionary<int, List<int>> translateDict;
+        public ListOfWords wordsOut;
+        public ListOfWords wordsIn;
         public SetLanguage LingvaOut { get; set; }
         public SetLanguage LingvaIn { get; set; }
 
         public Translate()
         {
-            translate = new Dictionary<int, List<int>>();
+            translateDict = new Dictionary<int, List<int>>();
+            wordsOut = new ListOfWords();
+            wordsIn = new ListOfWords();
+            ListFilling();
         }
 
-        public void AddNewTranslate(int idOut, int idIn)
+        public bool ListFilling()
+        {
+            //Word wordOut = new Word();
+            //Word wordIn = new Word();
+            SelectMenu += MenuPool.CreateMenuSelectLanguage().SelectOption;
+            LingvaOut = (SetLanguage)SelectMenu?.Invoke("Выбор языка, с которого переводим: ");
+            LingvaIn = (SetLanguage)SelectMenu?.Invoke("Выбор языка, на который переводим: ");
+            SelectMenu = null;
+            if (LingvaOut != SetLanguage.Undefined && LingvaIn != SetLanguage.Undefined)
+            {
+                wordsOut.WordLanuage = LingvaOut;
+                wordsOut.UserLanguage = LingvaOut;
+                wordsIn.WordLanuage = LingvaIn;
+                wordsIn.UserLanguage = LingvaIn;
+                wordsOut.ReadFromXML();
+                wordsIn.ReadFromXML();
+                ReadFromXML();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+            public void AddNewTranslate(int idOut, int idIn)
         {
             List<int> list = null;
-            if (translate.ContainsKey(idOut))
+            if (translateDict.ContainsKey(idOut))
             {
-                translate.TryGetValue(idOut, out list);
+                translateDict.TryGetValue(idOut, out list);
                 list.Add(idIn);
             }
             else
             {
                 list = new List<int>();
                 list.Add(idIn);
-                translate.Add(idOut, list);
+                translateDict.Add(idOut, list);
             }
         }
 
         public List<int> GetListInID(int outID)
         {
             List<int> list = null;
-            foreach (int i in translate.Keys)
+            foreach (int i in translateDict.Keys)
             {
                 if (i == outID)
                 {
-                    list = translate[i];
+                    list = translateDict[i];
                     break;
                 }
             }
@@ -53,10 +84,10 @@ namespace LingvaDict
         }
         public void Show()
         {
-            foreach (int i in translate.Keys)
+            foreach (int i in translateDict.Keys)
             {
                 Write(i.ToString() + ",");
-                foreach (int k in translate[i])
+                foreach (int k in translateDict[i])
                 {
                     Write(k.ToString() + ",");
                 }
@@ -75,10 +106,10 @@ namespace LingvaDict
                 writer.WriteStartDocument();
                 writer.WriteStartElement("Translate");
                 XmlSerializer listSerializer = new XmlSerializer(typeof(List<int>));
-                foreach (int i in translate.Keys)
+                foreach (int i in translateDict.Keys)
                 {
                     writer.WriteStartElement("idOut_"+i.ToString());
-                    listSerializer.Serialize(writer, translate[i]);
+                    listSerializer.Serialize(writer, translateDict[i]);
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
@@ -112,7 +143,7 @@ namespace LingvaDict
                     wordID = ToInt32(reader.Name.Split('_')[1]);
                     reader.ReadStartElement();
                     list = (List<int>)listSerializer.Deserialize(reader);
-                    translate.Add(wordID, list);
+                    translateDict.Add(wordID, list);
                     list = null;
                     reader.ReadEndElement();
                     reader.MoveToContent();

@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LingvaDict</name>
+    </assembly>
+    <members>
+        <member name="T:LingvaDict.SetMenu">
+            <summary>
+            Набор меню
+            </summary>
+        </member>
+        <member name="F:LingvaDict.SetMenu.Undefined">
+            <summary>
+             Меню не определено
+            </summary>
+        </member>
+        <member name="F:LingvaDict.SetMenu.ModeOfUsing">
+            <summary>
+            Режим работы пользователя
+            </summary>
+        </member>
+        <member name="F:LingvaDict.SetMenu.SelectLanguage">
+            <summary>
+            Выбор языка
+            </summary>
+        </member>
+        <member name="F:LingvaDict.SetMenu.SelectActWordsList">
+            <summary>
+            Выбор действий для работы со списком слов
+            </summary>
+        </member>
+        <member name="F:LingvaDict.SetMenu.SelectPartOfSpeech">
+            <summary>
+            Выбор части речи
+            </summary>
+        </member>
+        <member name="F:LingvaDict.SetMenu.SelectGender">
+            <summary>
+            Выбор рода существительного
+            </summary>
+        </member>
+        <member name="F:LingvaDict.SetMenu.SelectTransitive">
+            <summary>
+            Выбор переходности глагола
+            </summary>
+        </member>
+        <member name="F:LingvaDict.SetMenu.SelectСonjugationType">
+            <summary>
+            Выбор вида спряжения глагола
+            </summary>
+        </member>
+        <member name="F:LingvaDict.SetMenu.ContinueStop">
+            <summary>
+            Выбор действия - продолжить или остановиться
+            </summary>
+        </member>
+        <member name="T:LingvaDict.dMenuOption">
+            <summary>
+            делегат вызова выбора опции меню
+            </summary>
+            <param name="str"> заголовок меню </param>
+            <returns> возвращает целое число - выбор пользователя </returns>
+        </member>
+        <member name="T:LingvaDict.MenuPool">
+            <summary>
+            Класс содержит статические методы формирования различных меню
+            </summary>
+        </member>
+        <member name="M:LingvaDict.MenuPool.CreateMenuContinueStop">
+            <summary>
+            Создание меню: продолжить-остановиться
+            </summary>
+            <returns> возвращает объект класса Menu </returns>
+        </member>
+        <member name="M:LingvaDict.MenuPool.CreateMenuModeOfUsing">
+            <summary>
+            Создание меню для выбора режима работы пользователя
+            </summary>
+            <returns> возвращает объект класса Menu </returns>
+        </member>
+        <member name="M:LingvaDict.MenuPool.CreateMenuSelectLanguage">
+            <summary>
+            Создание меню для выбора языка
+            </summary>
+            <returns> возвращает объект класса Menu </returns>
+        </member>
+        <member name="M:LingvaDict.MenuPool.CreateMenuWordsList">
+            <summary>
+            Создание меню для выбора действий работы со списком слов
+            </summary>
+            <returns> возвращает объект класса Menu </returns>
+        </member>
+        <member name="M:LingvaDict.MenuPool.CreateMenuPartOfSpeech">
+            <summary>
+            Создание меню для выбора части речи
+            </summary>
+            <returns> возвращает объект класса Menu </returns>
+        </member>
+        <member name="M:LingvaDict.MenuPool.CreateMenuSelectGender">
+            <summary>
+            Создание меню для выбора рода имени существительного
+            </summary>
+            <returns> возвращает объект класса Menu </returns>
+        </member>
+        <member name="M:LingvaDict.MenuPool.CreateMenuSelectTransitive">
+            <summary>
+            Создание меню для выбора переходности глагола
+            </summary>
+            <returns> возвращает объект класса Menu </returns>
+        </member>
+        <member name="M:LingvaDict.MenuPool.CreateMenuSelectСonjugationType">
+            <summary>
+            Создание меню для выбора вида спряжения глагола
+            </summary>
+            <returns> возвращает объект класса Menu </returns>
+        </member>
+        <member name="T:LingvaDict.MenuOption">
+            <summary>
+             Класс для формирования и вывода на консоль опций меню
+            </summary>
+        </member>
+        <member name="M:LingvaDict.MenuOption.#ctor(System.String)">
+            <summary>
+            Конструктор - определяет строку-опцию меню
+            </summary>
+            <param name="sOption"> Текстовое написание опции </param>
+        </member>
+        <member name="P:LingvaDict.MenuOption.SOption">
+            <summary>
+            строка-опция меню
+            </summary>
+        </member>
+        <member name="M:LingvaDict.MenuOption.ToString">
+            <summary>
+            вывод на консоль строки-опции меню
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:LingvaDict.Menu">
+            <summary>
+            Класс <c>Menu</c> содержит методы для формирования меню
+            </summary>
+        </member>
+        <member name="M:LingvaDict.Menu.#ctor(System.Int32)">
+            <summary>
+            Конструктор, в котором объявляется массив опций меню 
+            </summary>
+            <param name="n"></param>
+        </member>
+        <member name="P:LingvaDict.Menu.Length">
+            <summary>
+            возвращает количество опций меню
+            </summary>
+        </member>
+        <member name="P:LingvaDict.Menu.Item(System.Int32)">
+            <summary>
+            индексатор меню по номеру опции
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:LingvaDict.Menu.SelectOption(System.String)">
+            <summary>
+            Метод для выбора опции меню, с проверкой правильности ввода
+            </summary>
+            <param name="sMess">
+            Используется для вывода заголовка меню
+            </param>
+            <returns>Возврат - ответ пользователя - целое число</returns>
+        </member>
+    </members>
+</doc>

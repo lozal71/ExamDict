@@ -1,12 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LingvaDict
+﻿namespace LingvaDict
 {
-    public enum SetGender { Undefined, Male, Famale, Neuter}
+    /// <summary>
+    /// набор родов имени существительного
+    /// </summary>
+    public enum SetGender 
+    {   /// <summary>
+        /// не определен
+        /// </summary>
+        Undefined, 
+        /// <summary>
+        /// мужской
+        /// </summary>
+        Male, 
+        /// <summary>
+        /// женский
+        /// </summary>
+        Famale, 
+        /// <summary>
+        /// средний
+        /// </summary>
+        Neuter
+    }
     interface INoun
     {
         SetGender GenderNoun { get; set; }

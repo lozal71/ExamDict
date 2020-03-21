@@ -1,37 +1,122 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using static System.Console;
 using System.Xml;
 using static System.Convert;
-using System.IO;
 using System.Xml.Serialization;
 using System.Xml.Schema;
 
 namespace LingvaDict
 {
-    public enum SetLanguage { Undefined, Russia, English, Deutsch, China };
-    public enum SetActWordsList { Undefined, AddWord, RemoveWord, ChangeWord, ShowWords }
-    public enum SetModeWrite { Undefined, Letters, Hieroglyph }
+    /// <summary>
+    /// набор языков
+    /// </summary>
+    public enum SetLanguage 
+    { 
+        /// <summary>
+        /// язык не определен
+        /// </summary>
+        Undefined, 
+        /// <summary>
+        /// русский
+        /// </summary>
+        Russia, 
+        /// <summary>
+        /// английский
+        /// </summary>
+        English, 
+        /// <summary>
+        /// немецкий
+        /// </summary>
+        Deutsch, 
+        /// <summary>
+        /// китайский
+        /// </summary>
+        China 
+    };
+    /// <summary>
+    /// набор действий для списка слов
+    /// </summary>
+    public enum SetActWordsList 
+    { 
+        /// <summary>
+        /// действие не определено
+        /// </summary>
+        Undefined, 
+        /// <summary>
+        /// добавить слово
+        /// </summary>
+        AddWord, 
+        /// <summary>
+        /// удалить слово
+        /// </summary>
+        RemoveWord, 
+        /// <summary>
+        /// изменить слово
+        /// </summary>
+        ChangeWord, 
+        /// <summary>
+        /// показать слова
+        /// </summary>
+        ShowWords 
+    }
+    /// <summary>
+    /// набор видов написания слова
+    /// </summary>
+    public enum SetModeWrite 
+    { 
+        /// <summary>
+        /// вид написания слова не определен
+        /// </summary>
+        Undefined, 
+        /// <summary>
+        /// вид написания - буквенный
+        /// </summary>
+        Letters, 
+        /// <summary>
+        /// вид написания - иероглифический
+        /// </summary>
+        Hieroglyph 
+    }
 
+    /// <summary>
+    /// Класс содержит свойства и методы для работы со списком слов
+    /// </summary>
     [XmlRoot("List")]
     public class ListOfWords : IEnumerable<Word>, IXmlSerializable
     {
-        public static event dMenuOption SelectMenu; // событие выбора пункта меню
+        /// <summary>
+        /// событие выбора пункта меню
+        /// </summary>
+        public static event dMenuOption SelectMenu; 
 
         SortedDictionary<Word, int> words;
+        /// <summary>
+        /// делегат для работы с частью речи
+        /// </summary>
+        /// <param name="word"> ссылка на слово </param>
         public delegate void DPartOfSpeech(ref Word word);
+
         Dictionary<SetPartOfSpeech, DPartOfSpeech> dictPartofSpeech;
+
+        /// <summary>
+        /// словарь действий со списком : ключ - название действия, значение - делегат-действие
+        /// </summary>
         public Dictionary<SetActWordsList, DJob> dictActWordList;
 
-
-        MenuPool menuPool = new MenuPool();
-
+        /// <summary>
+        /// свойство определяет язык слов в списке
+        /// </summary>
         public SetLanguage WordLanuage { get; set; }
+        /// <summary>
+        /// свойство определяет язык пользователя
+        /// </summary>
         public SetLanguage UserLanguage { get; set; }
+        /// <summary>
+        /// свйоство определяет способ написания слова
+        /// </summary>
         public SetModeWrite ModeWrite
         {
             get
@@ -46,11 +131,13 @@ namespace LingvaDict
                 }
             }
         }
-
-        //Word IEnumerator<Word>.Current => throw new NotImplementedException();
-
-        //object IEnumerator.Current => throw new NotImplementedException();
-
+        /// <summary>
+        /// Конструктор, в котором инициализируется:
+        /// 1. словарь частей речи.
+        /// в котором ключ - название части речи, значение - делегат-метод заполнения
+        /// параметров части речи
+        /// 2. словарь действий со списком
+        /// </summary>
         public ListOfWords()
         {
             words = new SortedDictionary<Word, int>();
@@ -67,10 +154,20 @@ namespace LingvaDict
             dictActWordList[SetActWordsList.Undefined] = new DJob(DoNothing);
 
         }
+        /// <summary>
+        /// метод для обозначения, что со списком ничего не надо делать
+        /// </summary>
         public void DoNothing()
         {
             WriteLine("ничего не делать со списком слов \n");
         }
+        /// <summary>
+        /// метод проверяет, есть ли буквенное написание в списке слов
+        /// </summary>
+        /// <param name="wordLetter"> буквенное написание </param>
+        /// <param name="word"> ссылка на объект класса Word, 
+        /// в котором есть искомое буквенное написание</param>
+        /// <returns> возвращает true, если буквенное написание найдено </returns>
         public bool IsInList(string wordLetter, ref Word word)
         {
             foreach (Word w in words.Keys)
@@ -110,8 +207,6 @@ namespace LingvaDict
                 SelectMenu += MenuPool.CreateMenuPartOfSpeech().SelectOption;
                 word.PartOfSpeech = (SetPartOfSpeech)SelectMenu?.Invoke("Какая часть речи?");
                 SelectMenu = null;
-                //word.PartOfSpeech = (SetPartOfSpeech)
-                //      menuPool[SetMenu.SelectPartOfSpeech]().SelectOption("Какая часть речи?");
                 dictPartofSpeech[word.PartOfSpeech](ref word);
                 Write("Введите смысловое описание слова -->");
                 word.Description = ReadLine();
@@ -173,8 +268,6 @@ namespace LingvaDict
             SelectMenu += MenuPool.CreateMenuPartOfSpeech().SelectOption;
             word.PartOfSpeech = (SetPartOfSpeech)SelectMenu?.Invoke("Какая часть речи?");
             SelectMenu = null;
-            //word.PartOfSpeech = (SetPartOfSpeech)
-            //    menuPool[SetMenu.SelectPartOfSpeech]().SelectOption("Какая часть речи?");
             dictPartofSpeech[word.PartOfSpeech](ref word);
             Write("Введите смысловое описание слова -->");
             word.Description = ReadLine();
@@ -190,8 +283,6 @@ namespace LingvaDict
             SelectMenu += MenuPool.CreateMenuSelectGender().SelectOption;
             word.GenderNoun = (SetGender)SelectMenu?.Invoke("Выберите род существительного");
             SelectMenu = null;
-            //word.GenderNoun = (SetGender)
-            //      menuPool[SetMenu.SelectGender]().SelectOption("Выберите род существительного");
             Write("Введите форму множественного числа -->");
             word.PluralForm = ReadLine();
         }
@@ -205,11 +296,6 @@ namespace LingvaDict
             word.ConjugationType = (SetConjugationType)
                 SelectMenu?.Invoke("Выберите спряжение (сильное/слабое):");
             SelectMenu = null;
-            //word.Transitive = (SetTransitiveForm)
-            //    menuPool[SetMenu.SelectTransitive]().SelectOption("Этот глагол переходный/непереходный?");
-            //word.ConjugationType = (SetConjugationType)
-            //    menuPool[SetMenu.SelectСonjugationType]().
-                //SelectOption("Выберите спряжение (сильное/слабое):");
             if (word.ConjugationType == SetConjugationType.Strong)
             {
                 Write("Введите глагол, с которым спрягается -->");

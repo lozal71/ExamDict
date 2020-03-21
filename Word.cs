@@ -10,9 +10,22 @@ using System.Collections;
 
 namespace LingvaDict
 {
+    /// <summary>
+    /// Класс содержит признаки слова:
+    /// для имени существительного: род и множественное число
+    /// для глагола: переходность, вид спряжения, вспомогательный глагол,
+    /// смысловое описание слова;
+    /// наследует интерфейсы INoun, IVerb, IComparable<Word>
+    /// </summary>
     [Serializable]
     public class Word : BaseWord, INoun, IVerb, IComparable<Word>
     {
+        /// <summary>
+        /// Конструктор, в котором определяются:
+        /// для имени существительного: род и множественное число
+        /// для глагола: переходность, вид спряжения, вспомогательный глагол,
+        /// смысловое описание слова
+        /// </summary>
         public Word() 
         {
             GenderNoun = SetGender.Undefined;
@@ -22,14 +35,34 @@ namespace LingvaDict
             AuxiliaryVerb = "Undefined";
             Description = "Undefined";
         }
-
+        /// <summary>
+        /// свойство для рода имени существительного
+        /// </summary>
         public SetGender GenderNoun { get; set; }
+        /// <summary>
+        /// свойство для множественного числа имени существительного
+        /// </summary>
         public string PluralForm { get; set; }
+        /// <summary>
+        /// свойство для обозначения переходности глагола
+        /// </summary>
         public SetTransitiveForm Transitive  { get ;  set ; }
+        /// <summary>
+        /// свойство для определения вида спряжения глагола (слабое/сильное)
+        /// </summary>
         public SetConjugationType ConjugationType { get; set; }
+        /// <summary>
+        /// свойство для определения вспомогательного глагола
+        /// </summary>
         public string AuxiliaryVerb { get; set; }
+        /// <summary>
+        /// свойство для смыслового описания
+        /// </summary>
         public string Description { get; set; }
-
+        /// <summary>
+        /// вывод на консоль признаков слова
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             switch (PartOfSpeech)
@@ -47,7 +80,11 @@ namespace LingvaDict
                     return $"{this.WriteLetter}";
             }
         }
-
+        /// <summary>
+        /// определение равенства двух слов
+        /// </summary>
+        /// <param name="obj"> Слово, с которым сравнивают </param>
+        /// <returns> возвращает true, если совпадает буквенное написание и смысловое описание </returns>
         public override bool Equals(object obj)
         {
             if (this.WriteLetter.Equals((obj as Word).WriteLetter) &&
@@ -61,7 +98,6 @@ namespace LingvaDict
             }
         }
 
-
         int IComparable<Word>.CompareTo(Word other)
         {
             if (this.WriteLetter.CompareTo(other.WriteLetter) == 0 &&
@@ -74,7 +110,10 @@ namespace LingvaDict
                 return this.WriteLetter.CompareTo(other.WriteLetter);
             }
         }
-
+        /// <summary>
+        /// хеширование
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             var hashCode = 1881619974;
